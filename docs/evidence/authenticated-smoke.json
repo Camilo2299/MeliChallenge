@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-10-16T07:47:43.244465+00:00",
+  "api_url": "https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com",
+  "checks": [
+    {
+      "path": "/v1/services",
+      "status": 200,
+      "request_id": "258d269950228933b86bb6c99e6faf2f"
+    },
+    {
+      "path": "/v1/services?environment=production",
+      "status": 200,
+      "request_id": "52d0cac30e28fbbf6df7e405f61060e5"
+    },
+    {
+      "path": "/v1/services/gateway",
+      "status": 200,
+      "request_id": "08a35828882ac27b02d0acd2ee3cde79"
+    },
+    {
+      "path": "/v1/deployments?service_id=gateway",
+      "status": 200,
+      "request_id": "2b8e5a665be216563b8f3d23801fbba2"
+    },
+    {
+      "path": "/v1/summary",
+      "status": 200,
+      "request_id": "b8e83a3af9b97feba03caa9a31fd23bb"
+    }
+  ]
+}

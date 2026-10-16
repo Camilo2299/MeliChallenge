@@ -87,8 +87,13 @@ def main():
             tokens = json.load(response)
     except urllib.error.HTTPError as exc:
         raise SystemExit(f'Token exchange failed with HTTP {exc.code}; no token contents logged.') from None
-    if 'infra-metrics/read' not in tokens.get('scope', '').split():
-        raise SystemExit('Cognito did not grant the required API scope.')
+    # Cognito's token response does not include a top-level scope field.
+    # The protected API requests below verify authorization through API Gateway,
+    # which validates the JWT and its required infra-metrics/read scope.
+    if not isinstance(tokens.get('access_token'), str) or not tokens['access_token']:
+        raise SystemExit('Cognito did not return an access token.')
+    if tokens.get('token_type', '').lower() != 'bearer':
+        raise SystemExit('Cognito returned an unexpected token type.')
     report = {'generated_at': datetime.now(timezone.utc).isoformat(), 'api_url': args.api_url, 'checks': []}
     for path in ['/v1/services', '/v1/services?environment=production', '/v1/services/gateway', '/v1/deployments?service_id=gateway', '/v1/summary']:
         request = urllib.request.Request(args.api_url.rstrip('/') + path, headers={'Authorization': 'Bearer ' + tokens['access_token']})
