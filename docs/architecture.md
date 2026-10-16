@@ -14,11 +14,14 @@ flowchart LR
   E --> CW[CloudWatch Logs / Container Insights]
   G --> CW
   A --> CW
-  TF[Terraform local: perfil SSO] --> BS[S3 estado versionado + lockfile]
-  TF --> VPC
+  TF[Terraform local: bootstrap e identidad con SSO] --> BS[S3 estado versionado + lockfile]
+  CI[GitHub Actions: verify / publish / plan / apply] --> R
+  CI --> OIDC[Roles OIDC separados y aprobacion production]
+  OIDC --> BS
+  OIDC --> VPC
 ```
 
-Este diagrama describe código; no acredita recursos desplegados. Cognito, ECR y CloudWatch son servicios regionales fuera de la VPC. Bootstrap administra S3 de estado, ECR y un presupuesto de cuenta; el stack principal consulta ese ECR existente.
+Este diagrama corresponde al laboratorio desplegado; ver [evidencia de despliegue y pruebas](deployment-progress.md). Cognito, ECR y CloudWatch son servicios regionales fuera de la VPC. Bootstrap administra S3 de estado, ECR y un presupuesto de cuenta; el stack principal consulta ese ECR existente.
 
 La entrada pública usa TLS del dominio execute-api de AWS. No requiere dominio propio ni ACM para este endpoint. ACM y dominio personalizado quedan fuera del laboratorio inicial. Dentro de la VPC el enlace usa HTTP; si se exige cifrado extremo a extremo, añadir listener HTTPS, certificado y verificación TLS de la integración.
 
@@ -32,4 +35,4 @@ ECS usa Linux/X86_64: publicar imagen linux/amd64. Dos tareas deseadas, máximo 
 
 Hay circuit breaker, probes y espera de estabilidad; no cubren regresiones funcionales silenciosas. CloudWatch tiene logs y alarmas 5xx de ALB, targets y Gateway. Sin alarm_topic_arn no hay destino de notificaciones. Logs estructurados de aplicación, tracing y alarmas SLO quedan pendientes.
 
-HTTP API no incluye WAF directo en este diseño. No se aprovisiona un secret si no se necesita. Task role sin permisos adicionales; execution role para imagen/logs y secret opcional. Los roles de GitHub/OIDC y la separación del rol de infraestructura se completarán cuando exista repositorio. Actualmente el despliegue inicial previsto usa el perfil humano SSO devops-challenge; no el usuario root.
+HTTP API no incluye WAF directo en este diseño. No se aprovisiona un secret si no se necesita. Task role sin permisos adicionales; execution role para imagen/logs y secret opcional. GitHub Actions usa tres roles OIDC separados para publicar, planificar y aplicar, ligados al repositorio y al entorno. El perfil humano SSO devops-challenge administra bootstrap e identidad; no se usa root. El pipeline publica en ECR, guarda un plan revisable y aplica ese mismo plan tras la aprobación de production. Solo lab está desplegado; staging/production independientes quedan como evolución.

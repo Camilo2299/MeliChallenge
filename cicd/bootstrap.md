@@ -1,6 +1,6 @@
 # Despliegue inicial desde macOS
 
-Usar Terraform >=1.10, AWS CLI v2, Docker Desktop y perfil SSO `devops-challenge`. Ejecutar desde devops-challenge/. No ejecutar apply hasta revisar el plan, cuenta, región y costo y obtener autorización. Estos comandos son el procedimiento, no evidencia de ejecución.
+Usar Terraform >=1.10, AWS CLI v2, Docker Desktop y perfil SSO `devops-challenge`. Ejecutar desde devops-challenge/. No ejecutar apply hasta revisar el plan, cuenta, región y costo y obtener autorización. Estos comandos describen el procedimiento, no sustituyen evidencia. El laboratorio actual ya fue desplegado: consultar docs/deployment-progress.md. No repetir un bootstrap inicial ni migrar nuevamente su estado; usar el backend remoto existente.
 
 ## 1. Sesión y parámetros
 
@@ -17,14 +17,19 @@ Editar el archivo ignorado por Git con región, presupuesto aprobado y correo re
 ## 2. Plan bootstrap y revisión
 
 ```bash
-terraform -chdir=iac/bootstrap init -input=false
+# Laboratorio existente: inicializar contra su estado remoto, no un estado nuevo.
+terraform -chdir=iac/bootstrap init -input=false \
+  -backend-config="bucket=infra-signal-lab-tfstate-026249143093-us-east-1" \
+  -backend-config="key=infra-signal/bootstrap.tfstate" \
+  -backend-config="region=us-east-1" \
+  -backend-config="encrypt=true" -backend-config="use_lockfile=true"
 terraform -chdir=iac/bootstrap fmt -check
 terraform -chdir=iac/bootstrap validate
 terraform -chdir=iac/bootstrap plan -input=false -out=bootstrap.tfplan
 terraform -chdir=iac/bootstrap show -no-color bootstrap.tfplan
 ```
 
-Bootstrap crea S3 privado/versionado/cifrado/TLS, ECR inmutable y presupuesto con alertas. Su estado inicialmente es local: no subir terraform.tfstate a Git y respaldarlo de forma segura. ECR retiene versiones etiquetadas para evitar perder la imagen de rollback.
+Bootstrap crea S3 privado/versionado/cifrado/TLS, ECR inmutable y presupuesto con alertas. En el laboratorio actual su estado está en S3. Un bootstrap en una cuenta nueva necesita un arranque previo del bucket y migración controlada desde estado local; no subir terraform.tfstate a Git y respaldarlo de forma segura. ECR retiene versiones etiquetadas para evitar perder la imagen de rollback.
 
 **Solo después de autorizar el plan concreto:**
 
@@ -34,7 +39,7 @@ STATE_BUCKET=$(terraform -chdir=iac/bootstrap output -raw state_bucket)
 REPOSITORY=$(terraform -chdir=iac/bootstrap output -raw ecr_repository_url)
 ```
 
-Migrar también el estado bootstrap a S3: agregar `terraform { backend "s3" {} }` en `iac/bootstrap/backend.tf`, ejecutar `terraform -chdir=iac/bootstrap init -migrate-state` con bucket, key `infra-signal/bootstrap.tfstate`, región, encrypt=true y use_lockfile=true; revisar y aceptar la migración interactiva. Verificar `terraform state list` y el objeto S3 antes de archivar la copia local. No ejecutar migrate-state si el backend destino ya contiene un estado ajeno.
+Solo para una cuenta nueva cuyo bootstrap se creó primero con estado local: `iac/bootstrap/backend.tf` ya contiene el bloque S3. Para ese arranque inicial se debe preparar deliberadamente el backend local y luego restaurar el bloque S3; no aplicar este procedimiento al laboratorio existente. Para migrar aquel estado local, ejecutar `terraform -chdir=iac/bootstrap init -migrate-state` con bucket, key `infra-signal/bootstrap.tfstate`, región, encrypt=true y use_lockfile=true; revisar y aceptar la migración interactiva. Verificar `terraform state list` y el objeto S3 antes de archivar la copia local. No ejecutar migrate-state si el backend destino ya contiene un estado ajeno.
 
 ## 3. Imagen Linux/amd64
 
