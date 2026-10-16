@@ -12,3 +12,9 @@ variable "roles" {
     error_message = "Each role requires a valid identity policy."
   }
 }
+
+variable "repository_subject" {
+  type        = string
+  default     = ""
+  description = "Exact GitHub repository sub_claim_prefix when immutable subjects are enabled."
+}

@@ -13,7 +13,7 @@ run "exact_repository_and_environments" {
     error_message = "Every role must restrict the OIDC audience to AWS STS."
   }
   assert {
-    condition     = output.trust_policies.publish.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299/MeliChallenge:environment:image-publish" && output.trust_policies.plan.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299/MeliChallenge:environment:production-plan" && output.trust_policies.terraform.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299/MeliChallenge:environment:production"
+    condition     = output.trust_policies.publish.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:image-publish" && output.trust_policies.plan.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:production-plan" && output.trust_policies.terraform.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:production"
     error_message = "Trust must bind each role to its exact repository and environment."
   }
 }

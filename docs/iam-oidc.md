@@ -17,7 +17,7 @@ flowchart LR
 
 Los nombres de entornos production-plan/production se conservaron del workflow, pero TF_ENVIRONMENT=lab: no representan una plataforma productiva ya desplegada. Cada entorno permite únicamente la rama main. `production` exige revisión de Camilo2299; se permite autoaprobación porque el laboratorio tiene un único responsable. No equivale a revisión independiente por dos personas. Se deshabilitó bypass administrativo de las protecciones del entorno.
 
-Las trust policies usan StringEquals exacto para `aud=sts.amazonaws.com` y `sub=repo:Camilo2299/MeliChallenge:environment:NOMBRE`. No hay wildcard en repositorio o entorno. Las sesiones duran como máximo una hora. El proveedor OIDC es global en la cuenta; el módulo admite reutilizar un proveedor existente para evitar duplicados.
+Las trust policies usan StringEquals exacto para `aud=sts.amazonaws.com` y `sub=repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:NOMBRE`. El prefijo con IDs inmutables se verificó en la API GitHub `actions/oidc/customization/sub`; este repositorio tiene `use_immutable_subject=true`. No hay wildcard en repositorio o entorno. Las sesiones duran como máximo una hora. El proveedor OIDC es global en la cuenta; el módulo admite reutilizar un proveedor existente para evitar duplicados.
 
 ## Permisos
 
@@ -57,7 +57,7 @@ CloudTrail/alertas dedicadas para cambios IAM del pipeline no se aprovisionaron 
 
 - Stack: iac/identity; módulo reutilizable: iac/modules/iam.
 - Backend: bucket infra-signal-lab-tfstate-026249143093-us-east-1, key infra-signal/identity.tfstate, encrypt y use_lockfile habilitados.
-- Aplicar **únicamente tras aprobar identity.tfplan**. Esta entrega prepara el plan; no acredita que los roles estén creados.
+- Aplicar **únicamente tras aprobar identity.tfplan**. Los 16 recursos IAM ya fueron aplicados; el plan posterior confirmó ausencia de drift. La comprobación OIDC real está en curso.
 - Variables GitHub configuradas con nombres/ARN previstos: AWS_REGION, AWS_ACCOUNT_ID, TF_ENVIRONMENT, TF_STATE_BUCKET, ECR_REPOSITORY_URL, AWS_PUBLISH_ROLE_ARN, AWS_PLAN_ROLE_ARN y AWS_DEPLOY_ROLE_ARN. Son configuración pública, no claves.
 - `Verify AWS OIDC` prueba STS/ECR sin crear infraestructura. La prueba del rol Terraform usa el entorno protegido y requiere la aprobación humana.
 - `Verify Plan and Deploy` sigue manual para despliegues. Publica la imagen con el rol publisher, genera el plan con el rol de lectura y aplica el mismo artefacto con el rol Terraform tras aprobación.

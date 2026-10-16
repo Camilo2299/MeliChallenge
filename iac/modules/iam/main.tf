@@ -17,7 +17,7 @@ resource "aws_iam_role" "github" {
     Statement = [{ Effect = "Allow", Action = "sts:AssumeRoleWithWebIdentity", Principal = { Federated = local.provider_arn }, Condition = {
       StringEquals = {
         "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-        "token.actions.githubusercontent.com:sub" = "repo:${var.repository}:environment:${each.value.environment}"
+        "token.actions.githubusercontent.com:sub" = "${var.repository_subject != "" ? var.repository_subject : "repo:${var.repository}"}:environment:${each.value.environment}"
       }
     } }]
   })
