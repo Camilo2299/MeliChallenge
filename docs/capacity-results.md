@@ -1,39 +1,42 @@
-# Intento de capacidad hacia 10.000 RPS
+# Resultado de capacidad: pico de 10.000 RPS validado
 
-Pruebas AWS del 16 de octubre de 2026, autorizadas con presupuesto incremental total de USD 5 y criterios de corte explícitos. Se usó el endpoint GET /v1/services, con fixtures y JWT Cognito, atravesando HTTPS → HTTP API → VPC Link → ALB interno → Fargate. No se ejecutaron bonus adicionales.
+El 16 de octubre de 2026 se completaron todos los escalones regionales hasta **10.000 RPS** sobre `GET /v1/services`, con JWT Cognito y fixtures. En el minuto de medición de 10k se recibieron **600.002 respuestas válidas**, media **10.000,03 RPS**, **p95 9,05 ms**, **p99 21,87 ms**, sin errores HTTP, 429, 5xx ni iteraciones descartadas.
 
-## Perfil y resultados
+## Resultados regionales
 
-Terraform modificó temporalmente solo el stage (10.000 RPS/burst 5.000) y autoscaling (8–16 tareas de 0,5 vCPU/1 GiB). Se comprobaron ocho tareas y ocho targets saludables antes de cada intento. El generador fue k6 2.3.0 en un Mac ARM64 de 8 GiB/ocho núcleos. La imagen de la API fue la previamente desplegada, 6cc31df8eadeeb888122a90e5503350f8478688f.
+Cada escalón incluye 10 s de calentamiento y una meseta independiente de 60 s. Las cifras siguientes corresponden a la meseta; la tasa global de k6 incluye calentamiento y por eso es menor que el objetivo. Cada iteración realiza una única solicitud: aquí RPS no representa una transacción de negocio de varias llamadas.
 
-| Objetivo | Meseta de 60 s completada | RPS válidos en la meseta | p95 / p99 de meseta (ms) | Errores HTTP | Iteraciones descartadas |
-|---:|---|---:|---:|---:|---:|
-| 100 | Sí | 100,00 | 83,52 / 87,98 | 0 | 0 |
-| 500 | Sí | 500,00 | 84,10 / 88,74 | 0 | 0 |
-| 1.000 | Sí | 1.000,02 | 84,82 / 89,34 | 0 | 0 |
-| 2.500 | Sí | 2.500,00 | 84,29 / 87,19 | 0 | 0 |
-| 5.000 | No; se abortó a los 44,11 s totales, incluido calentamiento | No acreditado como meseta completa | 84,59 / 88,88 para las muestras parciales | 0 | 59 |
-| 10.000 | No ejecutado por el corte anterior | No medido | No medido | No medido | No medido |
+| Objetivo RPS | Respuestas válidas / 60 s | RPS válidos medidos | p95 ms | p99 ms | Errores HTTP | Descartes k6 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 6,000 | 100.00 | 6.80 | 9.93 | 0% | 0 |
+| 500 | 30,001 | 500.02 | 5.86 | 9.65 | 0% | 0 |
+| 1,000 | 60,001 | 1,000.02 | 5.60 | 8.38 | 0% | 0 |
+| 2,500 | 150,001 | 2,500.02 | 5.66 | 8.86 | 0% | 0 |
+| 5,000 | 300,005 | 5,000.08 | 5.52 | 10.10 | 0% | 0 |
+| 10,000 | 600,002 | 10,000.03 | 9.05 | 21.87 | 0% | 0 |
 
-En el escalón abortado de 5k se recibieron **194.350 respuestas válidas, sin 429 ni 5xx**. No se completó su minuto a tasa objetivo. No usar el campo steady_observed_rps=2822,83 del reporte original como throughput real del intervalo parcial: el helper inicial dividía el contador entre los 60 s previstos aunque se abortara antes. Se conservó el reporte original, y el helper ahora devuelve null para ese cálculo si el escalón falla. El throughput global, que incluye calentamiento y corte, tampoco equivale al throughput de una meseta completa.
+La secuencia completa envió **1.241.329 solicitudes**, todas válidas. Evidencias originales: [report.json](evidence/regional-capacity/report.json), resúmenes y logs por escalón en el mismo directorio, y [CloudWatch](evidence/regional-capacity/cloudwatch.json).
 
-Evidencias originales: [repetición](evidence/capacity-retry/report.json) y sus resúmenes por escalón, [primer intento](evidence/capacity-attempt-1/report.json), [CloudWatch](evidence/capacity-cloudwatch.json) y [muestras de tareas](evidence/capacity-task-samples.json).
+## Entorno y autenticación
 
-## Primer intento y corrección del generador
+- Generador temporal EC2 c7g.2xlarge: ocho vCPU, 16 GiB, Amazon Linux ARM64 en us-east-1a, k6 oficial 2.3.0 (e088784614). Sin ingreso/SSH; administración SSM, EBS cifrado e IMDSv2.
+- API: misma imagen previamente desplegada `6cc31df8eadeeb888122a90e5503350f8478688f`, 16 tareas Fargate preaprovisionadas de 0,5 vCPU/1 GiB. Min y max fijados a 16 para aislar capacidad del retraso del autoscaler.
+- Tráfico público HTTPS real: API Gateway HTTP API → JWT authorizer → VPC Link → ALB interno → Fargate privado. No se midió acceso directo al ALB ni se deshabilitó autenticación.
+- Autenticación M2M con cliente temporal, issuer del pool existente y scope infra-metrics/read. El authorizer aceptó temporalmente ese client_id además del consumidor humano. Se obtuvo un token por escalón; no hubo login interactivo durante la secuencia.
+- Secretos/JWT solo se capturaron en memoria del driver, nunca en reportes, user data ni parámetros SSM. El client secret fue atributo sensible del estado Terraform remoto cifrado; el cliente temporal se eliminó al finalizar y los roles CI no tienen acceso a ese key de estado.
 
-La primera secuencia se detuvo en 100 RPS tras 12,15 s: 1.185 respuestas válidas, cero errores, seis dropped_iterations. Se restauró el perfil original y se pidió autorización para una repetición dentro del mismo presupuesto total. La repetición agregó 10 s de calentamiento por escalón y al menos 100 VUs preasignados; mantuvo los mismos límites de error, latencia y cero dropped_iterations. La evaluación de corte comienza a los 20 s para contar con muestras posteriores al calentamiento. No se relajaron umbrales para ocultar los descartes.
+La mayor demanda de CPU media medida del generador fue 2,659 equivalentes de núcleo y su máximo RSS reportado 697.810.944 bytes. En la ventana CloudWatch, CPUUtilization del servicio tuvo un máximo observado de 32,43 % y MemoryUtilization de 0,68 %; TargetResponseTime máximo observado 205,71 ms. Son métricas agregadas por minuto; no equivalen al p95/p99 de cliente. No hubo puntos de HTTPCode_Target_5XX_Count en la consulta: el cero de 5xx observado procede del contador k6.
 
-## Diagnóstico: lo que permiten concluir los datos
+## Restauración y costo
 
-- La prueba encontró iteraciones que k6 no llegó a iniciar, no errores de las solicitudes enviadas. Eso puede implicar disponibilidad de VUs, planificación del cliente, duración de iteraciones u otros límites; no demuestra por sí solo la capacidad máxima del backend.
-- El máximo de RSS registrado del generador fue 383.762.432 bytes y su consumo medio de CPU medido por escalón quedó por debajo de un equivalente de núcleo. No se alcanzaron los cortes propuestos de 2 GiB/seis núcleos, y no sería correcto afirmar saturación de CPU o memoria del Mac como causa establecida.
-- La CPUUtilization del servicio ECS tuvo un máximo observado de 27,90 %; MemoryUtilization, 0,68 %. TargetResponseTime tuvo un máximo observado de 46,62 ms en la ventana consultada. Las métricas se agregan a 60 s y no descartan picos más breves ni explican por sí solas el descarte.
-- Las muestras de tareas muestran ocho deseadas y ocho ejecutándose, sin pendientes; no se observó una subida de 8 a 16 en esa muestra. El aumento inicial de 2 a 8 fue por el mínimo temporal, no prueba de reacción autónoma del autoscaler a un pico.
-- CloudWatch no devolvió puntos de HTTPCode_Target_5XX_Count en esa consulta; no convertir ausencia de puntos en una medición independiente de cero. El contador cero de 5xx proviene de k6.
-- Hubo 462.043 solicitudes entre ambos intentos. A USD 1/millón, ≈USD 0,462 solo en llamadas Gateway antes de créditos y otros cargos. Es una estimación del componente, no lectura de factura.
+Terraform restauró min=2/max=4, throttle=100/burst=200 y la audiencia original. Se retiraron **los 14 recursos temporales**, incluida instancia, cliente M2M, rol, perfil, launch template y bucket. Evidencias: [regional-cleanup.json](evidence/regional-capacity/regional-cleanup.json). El plan posterior terminó con No changes y el smoke de readiness/rechazo sin token pasó. El laboratorio no se deja abierto permanentemente a 10k RPS por costo.
 
-## Cierre y siguiente paso
+Tarifa EC2 consultada: USD 0,29/h. Los dos intentos del Mac sumaron 462.043 solicitudes; junto con la secuencia regional suman 1.703.372, equivalentes a ≈USD 1,703 en llamadas Gateway a USD 1/millón, antes de créditos y otros cargos. Es estimación de ese componente, no una factura. El presupuesto incremental total autorizado fue USD 5; se retiró el generador y se revirtió la capacidad adicional para limitar consumo.
 
-Se restauraron mediante Terraform min=2/max=4 y throttle=100/burst=200, conservando la imagen original. El plan posterior y la salud final se documentan en evidence/capacity-restoration.json. Por protección de costos, el endpoint no queda habilitado permanentemente a 10k tras esta prueba.
+## Interpretación y límites
 
-El máximo escalón completo validado es **2.500 RPS durante un minuto**, con la ruta/datos/entorno indicados. No se ha demostrado el pico de 10.000 RPS. Para seguir, aislar el generador en Linux y preferiblemente dentro de us-east-1, verificar su capacidad de entregar la tasa y repetir con un plan y presupuesto revisados. Esto sería otra fase de pruebas, no un bonus; no se aprovisionó un generador regional ni se ejecutó una tercera secuencia.
+Este resultado demuestra el pico medido de un endpoint de fixtures durante un minuto, con el perfil regional descrito. No prueba 10k sostenidos durante horas, consultas a datos reales, toda mezcla de endpoints, pérdida de AZ bajo 10k ni escalamiento automático desde dos tareas ante un pico instantáneo. La recuperación de una tarea y el rollback de revisión con imagen idéntica se probaron por separado y a carga baja; ver [validation-results.md](validation-results.md). Las alarmas básicas no tienen destinatario de notificación.
+
+Los intentos iniciales en macOS se conservaron, incluso los cortes por dropped_iterations: [historial local](capacity-local-attempts.md). La región, plataforma, build de k6, latencia y autenticación cambiaron en la prueba regional. Que esta pasara no demuestra por sí solo la causa exacta de los descartes locales.
+
+Los bonus continúan fuera de esta fase. No hubo WAF, canary/blue-green ni tracing nuevos.

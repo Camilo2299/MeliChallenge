@@ -112,3 +112,9 @@ variable "jwt_scopes" {
     error_message = "Require at least one read scope on external JWTs."
   }
 }
+
+variable "additional_jwt_audiences" {
+  type        = list(string)
+  default     = []
+  description = "Temporary additional machine client IDs for separately authorized capacity tests; empty in the normal lab."
+}

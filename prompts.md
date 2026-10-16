@@ -14,3 +14,7 @@ No se presentan como hechas pruebas o despliegues que no se hayan ejecutado. La 
 ## Validación operacional de cierre
 
 La IA ayudó a preparar un generador k6 acotado y un helper de ensayo ECS. Se ejecutaron con autorización explícita: carga autenticada de 30 RPS, reemplazo de una tarea y retorno a una revisión original con la misma imagen. Se detectó y corrigió una colisión de argumentos en el helper; se conserva el reporte del primer intento y la recuperación en docs/validation-results.md. El candidato completó el login interactivo; no se guardaron tokens. Los resultados se contrastaron con ECS, targets ALB y Terraform; no prueban 10k RPS ni pérdida de AZ.
+
+## Prueba regional de pico
+
+Con autorización general de etapas de prueba y presupuesto total de USD 5, se preparó un generador Linux regional mediante Terraform y autenticación Cognito M2M temporal sin intervención humana. No se reutilizó ni cambió la contraseña del candidato. Se conservaron los intentos locales fallidos y se verificaron seis escalones regionales: pico de 10k RPS por un minuto, sin errores/descartes. Se descargaron reportes, se retiraron 14 recursos temporales y se comprobó el retorno a la configuración original. El resultado no se extrapola a datos reales, soak ni pérdida de AZ.

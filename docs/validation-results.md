@@ -1,5 +1,7 @@
 # Resultados de validación de cierre
 
+**Resultado posterior de capacidad:** pico de 10.000 RPS durante 60 s validado desde Linux regional; ver [capacity-results.md](capacity-results.md). Se conservan debajo las pruebas previas y sus límites históricos.
+
 Pruebas ejecutadas el 16 de octubre de 2026. Cuenta 026249143093, us-east-1, entorno lab. Las tres pruebas AWS se ejecutaron tras autorización explícita del candidato para el alcance y presupuesto incremental de docs/validation-plan.md.
 
 | Prueba | Resultado medido | Evidencia |
@@ -38,3 +40,7 @@ Tres tests locales del helper pasaron: construcción de update-service, retorno 
 ## Intento posterior hacia 10k RPS
 
 Ver [capacity-results.md](capacity-results.md): se validaron escalones completos hasta 2.500 RPS durante un minuto. En 5k hubo 59 iteraciones descartadas y se abortó sin errores HTTP; no se ejecutó el escalón de 10k. Se restauró la configuración habitual. Esto amplía la evidencia de carga, pero no cierra el objetivo de 10k RPS.
+
+## Cierre regional: pico solicitado completado
+
+La fase regional posterior completó 100/500/1k/2,5k/5k/10k RPS, con 60 s por meseta. En 10k: 600.002 respuestas válidas, 10.000,03 RPS, p95 9,05 ms y p99 21,87 ms; cero errores, 429, 5xx y descartes. Ver [capacity-results.md](capacity-results.md). Este resultado reemplaza la conclusión de capacidad pendiente de los intentos locales anteriores, que se conservan como historial. Los límites de soak, datos sintéticos, fallo AZ y bonus permanecen.

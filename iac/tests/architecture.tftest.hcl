@@ -16,6 +16,10 @@ variables { image_tag = "test-release" }
 run "private_backend" {
   command = apply
   assert {
+    condition     = length(aws_apigatewayv2_authorizer.jwt.jwt_configuration[0].audience) == 1
+    error_message = "The normal lab must accept only the original consumer client."
+  }
+  assert {
     condition     = aws_lb.internal.internal && length(aws_lb.internal.subnets) == 2
     error_message = "ALB must be private across two AZs."
   }
@@ -45,5 +49,17 @@ run "external_oidc" {
   assert {
     condition     = length(aws_cognito_user_pool.api) == 0 && aws_apigatewayv2_authorizer.jwt.jwt_configuration[0].issuer == "https://issuer.example.com"
     error_message = "External OIDC should not provision Cognito."
+  }
+}
+run "temporary_machine_audience" {
+  command = apply
+  variables { additional_jwt_audiences = ["capacity-test-client"] }
+  assert {
+    condition     = length(aws_apigatewayv2_authorizer.jwt.jwt_configuration[0].audience) == 2 && contains(aws_apigatewayv2_authorizer.jwt.jwt_configuration[0].audience, "capacity-test-client")
+    error_message = "Temporary machine audience must be added alongside the existing consumer."
+  }
+  assert {
+    condition     = alltrue([for route in aws_apigatewayv2_route.business : route.authorization_type == "JWT" && contains(route.authorization_scopes, "infra-metrics/read")])
+    error_message = "Capacity tests must preserve JWT authentication and the required read scope."
   }
 }

@@ -31,7 +31,7 @@ Cuatro rutas de negocio GET exigen JWT y scope infra-metrics/read. /health/ready
 
 Cognito permite altas administrativas, OAuth authorization code con PKCE y cliente público sin secreto. No se crean usuarios ni contraseñas en Terraform. La única callback inicial es http://localhost:8085/callback; configurar una callback real al integrar consumidores. La API entrega fixtures, no telemetría AWS.
 
-ECS usa Linux/X86_64: publicar imagen linux/amd64. Dos tareas deseadas, máximo cuatro y throttling inicial 100 RPS/200 burst limitan el laboratorio, **no demuestran ni habilitan 10.000 RPS**. Para esa meta se requieren cuotas verificadas, dimensionamiento, autorización de carga y mediciones con margen N-1 AZ.
+ECS usa Linux/X86_64: publicar imagen linux/amd64. Dos tareas deseadas, máximo cuatro y throttling inicial 100 RPS/200 burst limitan el laboratorio, **no habilitan permanentemente 10.000 RPS**; un perfil temporal de 16 tareas validó ese pico por 60 s (ver capacity-results.md). Para esa meta se requieren cuotas verificadas, dimensionamiento, autorización de carga y mediciones con margen N-1 AZ.
 
 Hay circuit breaker, probes y espera de estabilidad; no cubren regresiones funcionales silenciosas. CloudWatch tiene logs y alarmas 5xx de ALB, targets y Gateway. Sin alarm_topic_arn no hay destino de notificaciones. Logs estructurados de aplicación, tracing y alarmas SLO quedan pendientes.
 

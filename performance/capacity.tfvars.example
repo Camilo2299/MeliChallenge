@@ -3,8 +3,8 @@
 aws_region = "us-east-1"
 environment = "lab"
 image_tag = "replace-with-current-tested-deployed-sha"
-desired_count = 8
-min_capacity = 8
+desired_count = 16
+min_capacity = 16
 max_capacity = 16
 throttle_rate = 10000
 throttle_burst = 5000

@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-16T16:10:51.123642+00:00",
+  "source": "AWS Pricing GetProducts, AmazonEC2, us-east-1 / US East (N. Virginia), Linux, Shared, Used",
+  "instance_type": "c7g.2xlarge",
+  "vcpus": 8,
+  "memory": "16 GiB",
+  "hourly_usd": 0.29,
+  "request_cost_estimate_usd": 1.703372,
+  "notes": "Price quote / request estimate before credits and other charges, not a Cost Explorer invoice."
+}

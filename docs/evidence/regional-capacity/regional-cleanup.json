@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-10-16T16:05:44.331284+00:00",
+  "temporary_resources_destroyed": 14,
+  "generator_instance_state": "terminated",
+  "normal_jwt_configuration": [
+    {
+      "id": "zgwnqv",
+      "jwt": {
+        "Audience": [
+          "3rgsnh8b52lcqnlm00vnltlpdr"
+        ],
+        "Issuer": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_krpZrFRXe"
+      }
+    }
+  ],
+  "remaining_cognito_clients": [
+    {
+      "ClientId": "3rgsnh8b52lcqnlm00vnltlpdr",
+      "UserPoolId": "us-east-1_krpZrFRXe",
+      "ClientName": "infra-signal-lab-consumer"
+    }
+  ],
+  "service": [
+    {
+      "desired": 2,
+      "running": 2,
+      "pending": 0,
+      "definition": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:3"
+    }
+  ],
+  "normal_scaling": {
+    "min": 2,
+    "max": 4
+  },
+  "normal_throttle": {
+    "rate": 100,
+    "burst": 200
+  },
+  "terraform_post_restore": "No changes. Your infrastructure matches the configuration.",
+  "smoke": "PASS readiness and JWT rejection without token",
+  "operational_restoration": "desired_count set back to 2 after restoring autoscaling bounds; Terraform ignores desired_count by design."
+}

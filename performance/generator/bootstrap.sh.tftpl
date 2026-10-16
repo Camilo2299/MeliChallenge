@@ -1,0 +1,21 @@
+#!/bin/bash
+set -eu
+# Hard compute guard: stop/terminate after one hour even if the controller disappears.
+shutdown -h +60
+mkdir -p /opt/meli-capacity/results
+chmod 700 /opt/meli-capacity
+cd /opt/meli-capacity
+if ! command -v python3 >/dev/null; then dnf install -y python3; fi
+if ! command -v aws >/dev/null; then dnf install -y awscli-2; fi
+curl -fsSL --retry 3 https://github.com/grafana/k6/releases/download/v2.3.0/k6-v2.3.0-linux-arm64.tar.gz -o k6-v2.3.0-linux-arm64.tar.gz
+curl -fsSL --retry 3 https://github.com/grafana/k6/releases/download/v2.3.0/k6-v2.3.0-checksums.txt -o checksums.txt
+grep ' k6-v2.3.0-linux-arm64.tar.gz$' checksums.txt | sha256sum -c -
+tar -xzf k6-v2.3.0-linux-arm64.tar.gz
+install -m 755 k6-v2.3.0-linux-arm64/k6 /usr/local/bin/k6
+aws s3 cp s3://${bucket}/scripts/capacity.js /opt/meli-capacity/capacity.js --region us-east-1
+aws s3 cp s3://${bucket}/scripts/regional_run.py /opt/meli-capacity/regional_run.py --region us-east-1
+cat > /opt/meli-capacity/config.json <<'CONFIG'
+{"client_id":"${client_id}","pool_id":"us-east-1_krpZrFRXe","region":"us-east-1","bucket":"${bucket}","api_url":"https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com","token_url":"https://infra-signal-lab-026249143093.auth.us-east-1.amazoncognito.com/oauth2/token"}
+CONFIG
+chmod 600 /opt/meli-capacity/config.json
+touch /opt/meli-capacity/ready

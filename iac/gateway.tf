@@ -46,7 +46,7 @@ resource "aws_cognito_user_pool_domain" "api" {
 }
 locals {
   jwt_issuer    = var.jwt_issuer != "" ? var.jwt_issuer : "https://${aws_cognito_user_pool.api[0].endpoint}"
-  jwt_audiences = var.jwt_issuer != "" ? var.jwt_audiences : [aws_cognito_user_pool_client.api[0].id]
+  jwt_audiences = var.jwt_issuer != "" ? var.jwt_audiences : concat([aws_cognito_user_pool_client.api[0].id], var.additional_jwt_audiences)
   routes        = toset(["GET /v1/services", "GET /v1/services/{service_id}", "GET /v1/deployments", "GET /v1/summary"])
 }
 resource "aws_apigatewayv2_api" "api" {
