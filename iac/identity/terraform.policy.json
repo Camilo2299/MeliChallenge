@@ -207,6 +207,19 @@
             "aws:RequestedRegion": "us-east-1"
           }
         }
+      },
+      {
+        "Sid": "ApiGatewayTagOnCreate",
+        "Effect": "Allow",
+        "Action": [
+          "apigateway:TagResource"
+        ],
+        "Resource": [
+          "arn:aws:apigateway:us-east-1::/vpclinks",
+          "arn:aws:apigateway:us-east-1::/vpclinks/*",
+          "arn:aws:apigateway:us-east-1::/apis/v1dbllhj9a/stages",
+          "arn:aws:apigateway:us-east-1::/apis/v1dbllhj9a/stages/*"
+        ]
       }
     ]
   },
@@ -666,7 +679,7 @@
           "ecs:DeregisterTaskDefinition"
         ],
         "Resource": [
-          "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:*"
+          "*"
         ],
         "Condition": {
           "StringEquals": {
