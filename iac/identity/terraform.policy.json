@@ -17,12 +17,7 @@
           "arn:aws:apigateway:us-east-1::/vpclinks",
           "arn:aws:apigateway:us-east-1::/vpclinks/*",
           "arn:aws:apigateway:us-east-1::/tags/*"
-        ],
-        "Condition": {
-          "StringEquals": {
-            "aws:RequestedRegion": "us-east-1"
-          }
-        }
+        ]
       },
       {
         "Effect": "Allow",
@@ -617,7 +612,8 @@
       {
         "Effect": "Allow",
         "Action": [
-          "ec2:DescribeSecurityGroupRules"
+          "ec2:DescribeSecurityGroupRules",
+          "ec2:DescribeAccountAttributes"
         ],
         "Resource": [
           "*"
@@ -675,6 +671,23 @@
         "Condition": {
           "StringEquals": {
             "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress"
+        ],
+        "Resource": [
+          "arn:aws:ec2:us-east-1:026249143093:security-group-rule/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1",
+            "aws:RequestTag/Project": "infra-signal",
+            "aws:RequestTag/Environment": "lab"
           }
         }
       }

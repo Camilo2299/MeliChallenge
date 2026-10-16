@@ -340,7 +340,8 @@
       {
         "Effect": "Allow",
         "Action": [
-          "ec2:DescribeSecurityGroupRules"
+          "ec2:DescribeSecurityGroupRules",
+          "ec2:DescribeAccountAttributes"
         ],
         "Resource": [
           "*"
