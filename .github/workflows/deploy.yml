@@ -31,7 +31,7 @@ jobs:
           go vet ./...
       - name: Build image for Fargate
         run: docker build --platform linux/amd64 -t infra-signal:verify ./api
-      - uses: aquasecurity/trivy-action@0.30.0
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: infra-signal:verify
           severity: CRITICAL,HIGH
@@ -45,7 +45,7 @@ jobs:
       - run: terraform -chdir=iac test
       - run: terraform -chdir=iac/bootstrap init -backend=false -input=false -lockfile=readonly
       - run: terraform -chdir=iac/bootstrap validate
-      - uses: aquasecurity/trivy-action@0.30.0
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -83,7 +83,7 @@ jobs:
             docker build --platform linux/amd64 -t "$REPOSITORY:$GITHUB_SHA" ./api
             docker push "$REPOSITORY:$GITHUB_SHA"
           fi
-      - uses: aquasecurity/trivy-action@0.30.0
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ vars.ECR_REPOSITORY_URL }}:${{ github.sha }}
           severity: CRITICAL,HIGH
