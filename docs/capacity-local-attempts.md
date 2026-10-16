@@ -1,3 +1,5 @@
+> Historial de los intentos en macOS, previo al resultado regional exitoso. Para el resultado actual de 10k RPS ver [capacity-results.md](capacity-results.md).
+
 # Intento de capacidad hacia 10.000 RPS
 
 Pruebas AWS del 16 de octubre de 2026, autorizadas con presupuesto incremental total de USD 5 y criterios de corte explícitos. Se usó el endpoint GET /v1/services, con fixtures y JWT Cognito, atravesando HTTPS → HTTP API → VPC Link → ALB interno → Fargate. No se ejecutaron bonus adicionales.

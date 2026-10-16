@@ -1,6 +1,8 @@
-# Plan revisable: intento de pico de 10.000 RPS
+# Plan e historial de la prueba de 10.000 RPS
 
-## Alcance autorizado pendiente
+**Ejecución completada:** todos los escalones regionales pasaron y los recursos temporales se retiraron. Ver [resultado final](capacity-results.md). Los apartados siguientes conservan las revisiones del plan y sus autorizaciones.
+
+## Alcance inicial y evolución del plan
 
 Solo GET /v1/services con JWT Cognito y fixtures, desde k6 en el Mac. No se ejecutan WAF, canary, caída de tarea/AZ ni nuevos bonus en esta fase. No confundir RPS HTTP con transacciones de negocio que agrupan varias llamadas; aquí cada iteración hace una sola solicitud.
 

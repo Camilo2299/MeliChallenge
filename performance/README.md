@@ -23,8 +23,10 @@ Reportes originales en /tmp/meli-cloud-load.json y /tmp/meli-resilience-drill.js
 
 ## Límites
 
-No hay ensayo de 10.000 RPS, caída completa de AZ ni imagen defectuosa. El ensayo de rollback conserva la imagen y configuración conocidas: prueba el cambio de revisión y retorno a la original, no una regresión de negocio. El muestreo de una consulta cada segundo es evidencia puntual, no una garantía de disponibilidad continua. Ver docs/production-readiness.md antes de interpretar estos resultados.
+El ensayo regional completó 10.000 RPS por 60 s; ver docs/capacity-results.md. No hay ensayo de caída completa de AZ ni imagen defectuosa. El ensayo de rollback conserva la imagen y configuración conocidas: prueba el cambio de revisión y retorno a la original, no una regresión de negocio. El muestreo de una consulta cada segundo es evidencia puntual, no una garantía de disponibilidad continua. Ver docs/production-readiness.md antes de interpretar estos resultados.
 
 ## Intento de capacidad mayor
 
 `capacity.js` y `capacity.py` implementan el plan separado de docs/capacity-plan.md. Se ejecutó una secuencia inicial y una repetición autorizada; ver docs/capacity-results.md. El flag --capacity-test del helper requiere además MELI_CAPACITY_APPROVED=true y capacidad preparada mediante un plan Terraform; esa variable es una protección técnica, no sustituye consentimiento. Antes de repetir, revisar infraestructura, cuota, presupuesto, generador y restauración. Los bonus no se incluyen. `capacity.tfvars.example` es solo un ejemplo; no aplicarlo sin sustituir el tag por la imagen desplegada y revisar el plan.
+
+Resultado regional final y limpieza: docs/morning-report.md. Los reportes del Mac y sus cortes se conservan como historial; no representan el máximo validado tras la prueba regional.
