@@ -287,7 +287,8 @@
         "Effect": "Allow",
         "Action": [
           "ecr:DescribeRepositories",
-          "ecr:ListTagsForResource"
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImages"
         ],
         "Resource": [
           "arn:aws:ecr:us-east-1:026249143093:repository/infra-signal-lab"

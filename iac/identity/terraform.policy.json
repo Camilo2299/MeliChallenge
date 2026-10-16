@@ -555,7 +555,8 @@
         "Effect": "Allow",
         "Action": [
           "ecr:DescribeRepositories",
-          "ecr:ListTagsForResource"
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImages"
         ],
         "Resource": [
           "arn:aws:ecr:us-east-1:026249143093:repository/infra-signal-lab"
@@ -634,13 +635,17 @@
         ],
         "Resource": [
           "arn:aws:iam::026249143093:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
-          "arn:aws:iam::026249143093:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+          "arn:aws:iam::026249143093:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
+          "arn:aws:iam::026249143093:role/aws-service-role/elasticloadbalancing.amazonaws.com/AWSServiceRoleForElasticLoadBalancing",
+          "arn:aws:iam::026249143093:role/aws-service-role/ops.apigateway.amazonaws.com/AWSServiceRoleForAPIGateway"
         ],
         "Condition": {
           "StringEquals": {
             "iam:AWSServiceName": [
               "ecs.amazonaws.com",
-              "ecs.application-autoscaling.amazonaws.com"
+              "ecs.application-autoscaling.amazonaws.com",
+              "elasticloadbalancing.amazonaws.com",
+              "ops.apigateway.amazonaws.com"
             ]
           }
         }
