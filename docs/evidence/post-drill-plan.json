@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-16T08:15:30.898197+00:00",
+  "stack": "iac",
+  "image_tag": "6cc31df8eadeeb888122a90e5503350f8478688f",
+  "command": "terraform plan -input=false -parallelism=3 -detailed-exitcode -var=image_tag=6cc31df8eadeeb888122a90e5503350f8478688f",
+  "exit_code": 0,
+  "result": "No changes. Your infrastructure matches the configuration.",
+  "note": "First read failed due to transient DNS lookup error; retry succeeded. No apply performed."
+}

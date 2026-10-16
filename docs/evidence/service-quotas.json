@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-16T08:02:54.778990+00:00",
+  "region": "us-east-1",
+  "account_id": "026249143093",
+  "api_gateway": [
+    {
+      "name": "Throttle rate",
+      "value": 10000.0,
+      "code": "L-8A5B8E43"
+    },
+    {
+      "name": "Throttle burst rate",
+      "value": 5000.0,
+      "code": "L-CDF5615A"
+    },
+    {
+      "name": "API Stage throttles in a usage plan",
+      "value": 20.0,
+      "code": "L-A9DBC573"
+    }
+  ],
+  "fargate": {
+    "name": "Fargate On-Demand vCPU resource count",
+    "value": 30.0,
+    "code": "L-3032A538"
+  }
+}

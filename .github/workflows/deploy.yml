@@ -29,6 +29,11 @@ jobs:
           test -z "$(gofmt -l .)"
           go test -race -cover ./...
           go vet ./...
+      - name: Validate operational helpers
+        run: |
+          python3 -m py_compile cicd/login_and_test.py cicd/create_demo_user.py cicd/resilience_drill.py
+          python3 -m unittest discover -s cicd/tests -v
+          for script in cicd/*.sh; do bash -n "$script"; done
       - name: Build image for Fargate
         run: docker build --platform linux/amd64 -t infra-signal:verify ./api
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0

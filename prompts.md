@@ -10,3 +10,7 @@ Se utilizó asistencia de IA para estructurar una propuesta de arquitectura, gen
 - Ejecutar k6 con tráfico gradual antes de afirmar 10k RPS sostenidos.
 
 No se presentan como hechas pruebas o despliegues que no se hayan ejecutado. La API entrega información ilustrativa, no datos de infraestructura reales.
+
+## Validación operacional de cierre
+
+La IA ayudó a preparar un generador k6 acotado y un helper de ensayo ECS. Se ejecutaron con autorización explícita: carga autenticada de 30 RPS, reemplazo de una tarea y retorno a una revisión original con la misma imagen. Se detectó y corrigió una colisión de argumentos en el helper; se conserva el reporte del primer intento y la recuperación en docs/validation-results.md. El candidato completó el login interactivo; no se guardaron tokens. Los resultados se contrastaron con ECS, targets ALB y Terraform; no prueban 10k RPS ni pérdida de AZ.

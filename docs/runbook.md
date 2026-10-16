@@ -11,7 +11,7 @@ Antes de operar, confirmar perfil, cuenta, región y entorno; no usar root. La A
 
 ## Rollback
 
-Usar cicd/rollback.sh únicamente con ARN anterior comprobado y autorización. Luego reconciliar image_tag con la versión elegida en Terraform y revisar el plan; de lo contrario el siguiente apply deshará el rollback. El circuit breaker cubre fallos de arranque/health, no todas las regresiones.
+Ensayo realizado: ver validation-results.md. Para un incidente real, usar cicd/rollback.sh únicamente con ARN anterior comprobado, activo y autorización; definir AWS_REGION, CLUSTER, SERVICE y PREVIOUS_TASK_DEFINITION_ARN explícitamente. Las revisiones retiradas por Terraform no se pueden usar directamente para desplegar; revisar y volver a registrar su configuración conocida antes de elegirlas como destino. Luego reconciliar image_tag con la versión elegida en Terraform y revisar el plan; de lo contrario el siguiente apply deshará el rollback. El circuit breaker cubre fallos de arranque/health, no todas las regresiones.
 
 ## Desmontaje seguro
 

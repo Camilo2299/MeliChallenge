@@ -5,6 +5,8 @@ import base64
 import hashlib
 import json
 import secrets
+import os
+import subprocess
 import time
 import urllib.error
 import urllib.parse
@@ -21,7 +23,12 @@ def main():
     parser.add_argument('--authorize-url', required=True)
     parser.add_argument('--client-id', required=True)
     parser.add_argument('--report', default='/tmp/meli-authenticated-smoke.json')
+    parser.add_argument('--load-test', action='store_true', help='Run separately authorized cloud test: 30 RPS for 60 seconds.')
+    parser.add_argument('--resilience-drill', action='store_true', help='Run separately authorized task replacement and controlled revision rollback drill.')
+    parser.add_argument('--rollback-only', action='store_true', help='With --resilience-drill, resume rollback without another task stop.')
     args = parser.parse_args()
+    if args.rollback_only and not args.resilience_drill:
+        parser.error('--rollback-only requires --resilience-drill')
     authorize = urllib.parse.urlsplit(args.authorize_url)
     if authorize.scheme != 'https' or not (authorize.hostname or '').endswith('.amazoncognito.com'):
         parser.error('Use the HTTPS Cognito authorize URL returned by Terraform.')
@@ -113,6 +120,19 @@ def main():
             raise SystemExit(f'Authenticated API request failed with HTTP {exc.code}: {path}') from None
     Path(args.report).write_text(json.dumps(report, indent=2) + '\n')
     print('Report saved:', args.report, '(no tokens or credentials)')
+    if args.load_test or args.resilience_drill:
+        child_env = os.environ.copy()
+        child_env['ACCESS_TOKEN'] = tokens['access_token']
+        child_env['BASE_URL'] = args.api_url.rstrip('/')
+        root = Path(__file__).resolve().parents[1]
+        if args.load_test:
+            child_env.update(RATE='30', SECONDS='60', K6_NO_USAGE_REPORT='true')
+            subprocess.run(['k6', 'run', '--summary-export', '/tmp/meli-cloud-load.json',
+                            str(root / 'performance/loadtest.js')], env=child_env, check=True)
+        if args.resilience_drill:
+            subprocess.run(['python3', str(root / 'cicd/resilience_drill.py'), '--execute'] +
+                           (['--rollback-only'] if args.rollback_only else []), env=child_env, check=True)
+        child_env.pop('ACCESS_TOKEN', None)
 
 
 if __name__ == '__main__':

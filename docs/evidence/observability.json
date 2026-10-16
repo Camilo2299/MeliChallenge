@@ -1,0 +1,60 @@
+{
+  "checked_at": "2026-10-16T08:11:20.088031+00:00",
+  "log_group": "/apigateway/infra-signal-lab",
+  "sample_count": 5,
+  "samples": [
+    {
+      "integrationError": "-",
+      "latency": "7",
+      "requestId": "FU9TUhXwIAMEVTA=",
+      "routeKey": "GET /v1/services",
+      "status": "200"
+    },
+    {
+      "integrationError": "-",
+      "latency": "5",
+      "requestId": "FU9ThiH3oAMEb9A=",
+      "routeKey": "GET /v1/services",
+      "status": "200"
+    },
+    {
+      "integrationError": "-",
+      "latency": "10",
+      "requestId": "FU9Ttj_TIAMEbdA=",
+      "routeKey": "GET /v1/services",
+      "status": "200"
+    },
+    {
+      "integrationError": "-",
+      "latency": "64",
+      "requestId": "FU9T6gZNoAMEbeQ=",
+      "routeKey": "GET /v1/services",
+      "status": "200"
+    },
+    {
+      "integrationError": "-",
+      "latency": "48",
+      "requestId": "FU9UIityoAMEVQw=",
+      "routeKey": "GET /v1/services",
+      "status": "200"
+    }
+  ],
+  "alarms": [
+    {
+      "name": "infra-signal-lab-alb-5xx",
+      "state": "OK",
+      "notifications": []
+    },
+    {
+      "name": "infra-signal-lab-gateway-5xx",
+      "state": "OK",
+      "notifications": []
+    },
+    {
+      "name": "infra-signal-lab-target-5xx",
+      "state": "OK",
+      "notifications": []
+    }
+  ],
+  "limitations": "No notification target configured; no alert-trigger test. IPs omitted."
+}
