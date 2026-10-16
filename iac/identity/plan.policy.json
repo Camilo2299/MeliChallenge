@@ -1,0 +1,355 @@
+[
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "apigateway:GET"
+        ],
+        "Resource": [
+          "arn:aws:apigateway:us-east-1::/apis",
+          "arn:aws:apigateway:us-east-1::/apis/*",
+          "arn:aws:apigateway:us-east-1::/vpclinks",
+          "arn:aws:apigateway:us-east-1::/vpclinks/*",
+          "arn:aws:apigateway:us-east-1::/tags/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "application-autoscaling:DescribeScalableTargets",
+          "application-autoscaling:DescribeScalingPolicies"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "application-autoscaling:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:application-autoscaling:us-east-1:026249143093:scalable-target/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:DescribeAlarms"
+        ],
+        "Resource": [
+          "arn:aws:cloudwatch:us-east-1:026249143093:alarm:infra-signal-lab-*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:cloudwatch:us-east-1:026249143093:alarm:infra-signal-lab-*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cognito-idp:DescribeResourceServer",
+          "cognito-idp:DescribeUserPool",
+          "cognito-idp:DescribeUserPoolClient",
+          "cognito-idp:GetUserPoolMfaConfig",
+          "cognito-idp:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:cognito-idp:us-east-1:026249143093:userpool/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cognito-idp:DescribeUserPoolDomain"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeVpcAttribute"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeAddresses",
+          "ec2:DescribeAddressesAttribute",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeNatGateways",
+          "ec2:DescribeNetworkAcls",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeRouteTables",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
+          "ec2:DescribeVpcs"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecs:DescribeClusters",
+          "ecs:DescribeServiceDeployments",
+          "ecs:DescribeServices",
+          "ecs:ListServiceDeployments"
+        ],
+        "Resource": [
+          "arn:aws:ecs:us-east-1:026249143093:cluster/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:service/infra-signal-lab/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:*",
+          "arn:aws:ecs:us-east-1:026249143093:service-deployment/infra-signal-lab/*/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecs:DescribeTaskDefinition"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecs:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:ecs:us-east-1:026249143093:cluster/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:service/infra-signal-lab/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:*",
+          "arn:aws:ecs:us-east-1:026249143093:service-deployment/infra-signal-lab/*/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "elasticloadbalancing:DescribeCapacityReservation",
+          "elasticloadbalancing:DescribeListenerAttributes",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
+          "elasticloadbalancing:DescribeTargetGroups"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:DescribeLogGroups"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:GetRole",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole",
+          "iam:ListRolePolicies",
+          "iam:ListRoleTags"
+        ],
+        "Resource": [
+          "arn:aws:iam::026249143093:role/infra-signal-lab-execution",
+          "arn:aws:iam::026249143093:role/infra-signal-lab-task"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeAvailabilityZones"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:DescribeRepositories",
+          "ecr:ListTagsForResource"
+        ],
+        "Resource": [
+          "arn:aws:ecr:us-east-1:026249143093:repository/infra-signal-lab"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1"
+        ],
+        "Condition": {
+          "StringLike": {
+            "s3:prefix": [
+              "infra-signal/lab.tfstate",
+              "infra-signal/lab.tfstate.tflock",
+              "env:/"
+            ]
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/lab.tfstate"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/lab.tfstate.tflock"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeSecurityGroupRules"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      }
+    ]
+  }
+]

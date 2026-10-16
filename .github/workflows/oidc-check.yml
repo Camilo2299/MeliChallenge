@@ -1,0 +1,46 @@
+name: Verify AWS OIDC
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        include:
+          - environment: image-publish
+            role_variable: AWS_PUBLISH_ROLE_ARN
+          - environment: production-plan
+            role_variable: AWS_PLAN_ROLE_ARN
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars[matrix.role_variable] }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - name: Verify identity and ECR access
+        env:
+          REPOSITORY: ${{ vars.ECR_REPOSITORY_URL }}
+        run: |
+          aws sts get-caller-identity
+          aws ecr describe-repositories --repository-names "${REPOSITORY#*/}" --query 'repositories[0].repositoryName'
+  apply-identity:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - run: aws sts get-caller-identity

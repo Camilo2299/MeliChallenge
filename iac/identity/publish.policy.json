@@ -1,0 +1,34 @@
+[
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:GetAuthorizationToken"
+        ],
+        "Resource": [
+          "*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:DescribeImages",
+          "ecr:DescribeRepositories",
+          "ecr:ListTagsForResource",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:PutImage"
+        ],
+        "Resource": [
+          "arn:aws:ecr:us-east-1:026249143093:repository/infra-signal-lab"
+        ]
+      }
+    ]
+  }
+]
