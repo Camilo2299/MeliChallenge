@@ -1,0 +1,6 @@
+aws_region = "us-east-1"
+project = "infra-signal"
+environment = "lab"
+# Replace with the budget you actually approve; example only.
+monthly_budget_usd = 150
+budget_email = "replace-with-your-email@example.com"

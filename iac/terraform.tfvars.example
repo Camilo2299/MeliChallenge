@@ -1,0 +1,13 @@
+aws_region = "us-east-1"
+project = "infra-signal"
+environment = "lab"
+image_tag = "replace-with-immutable-release-tag"
+desired_count = 2
+min_capacity = 2
+max_capacity = 4
+throttle_rate = 100
+throttle_burst = 200
+# Default provisions Cognito. To use an existing IdP, configure BOTH:
+# jwt_issuer = "https://your-oidc-issuer.example.com"
+# jwt_audiences = ["your-api-audience"]
+# alarm_topic_arn = "arn:aws:sns:us-east-1:123456789012:your-topic"

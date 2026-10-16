@@ -1,0 +1,155 @@
+name: Verify Plan and Deploy
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Plan and deploy AWS infrastructure (requires configured OIDC roles and approval)'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: infra-signal-deployment
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Go format, tests and static analysis
+        working-directory: api
+        run: |
+          test -z "$(gofmt -l .)"
+          go test -race -cover ./...
+          go vet ./...
+      - name: Build image for Fargate
+        run: docker build --platform linux/amd64 -t infra-signal:verify ./api
+      - uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: infra-signal:verify
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+      - run: terraform fmt -check -recursive iac
+      - run: terraform -chdir=iac init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=iac validate
+      - run: terraform -chdir=iac test
+      - run: terraform -chdir=iac/bootstrap init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=iac/bootstrap validate
+      - uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+  plan:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: production-plan
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
+      TF_VAR_image_tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push immutable image
+        env:
+          REPOSITORY: ${{ vars.ECR_REPOSITORY_URL }}
+          REGION: ${{ vars.AWS_REGION }}
+        run: |
+          test -n "$REPOSITORY"
+          IMAGE_NAME="${REPOSITORY#*/}"
+          if aws ecr describe-images --region "$REGION" --repository-name "$IMAGE_NAME" --image-ids imageTag="$GITHUB_SHA" >/dev/null 2>&1; then
+            echo "Reusing existing immutable image"
+          else
+            docker build --platform linux/amd64 -t "$REPOSITORY:$GITHUB_SHA" ./api
+            docker push "$REPOSITORY:$GITHUB_SHA"
+          fi
+      - uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: ${{ vars.ECR_REPOSITORY_URL }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+      - name: Initialize remote state
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          terraform -chdir=iac init -input=false -lockfile=readonly \
+            -backend-config="bucket=$TF_STATE_BUCKET" \
+            -backend-config="key=infra-signal/${TF_VAR_environment}.tfstate" \
+            -backend-config="region=$AWS_REGION" \
+            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
+      - name: Create reviewable plan
+        run: |
+          terraform -chdir=iac plan -input=false -out=deployment.tfplan
+          terraform -chdir=iac show -no-color deployment.tfplan > iac/deployment-plan.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: |
+            iac/deployment.tfplan
+            iac/deployment-plan.txt
+          retention-days: 1
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+      - uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: iac
+      - name: Initialize and apply reviewed plan
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          terraform -chdir=iac init -input=false -lockfile=readonly \
+            -backend-config="bucket=$TF_STATE_BUCKET" \
+            -backend-config="key=infra-signal/${TF_VAR_environment}.tfstate" \
+            -backend-config="region=$AWS_REGION" \
+            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
+          terraform -chdir=iac apply -input=false deployment.tfplan
+      - name: Verify deployment
+        run: |
+          CLUSTER=$(terraform -chdir=iac output -raw ecs_cluster)
+          SERVICE=$(terraform -chdir=iac output -raw ecs_service)
+          BASE_URL=$(terraform -chdir=iac output -raw api_url)
+          aws ecs wait services-stable --cluster "$CLUSTER" --services "$SERVICE"
+          bash cicd/smoke.sh "$BASE_URL"
