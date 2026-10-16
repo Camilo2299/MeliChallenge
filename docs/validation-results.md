@@ -34,3 +34,7 @@ Ver [alcance de producción](production-readiness.md), [checklist del PDF](audit
 ## Validación de los helpers
 
 Tres tests locales del helper pasaron: construcción de update-service, retorno a baseline en transición exitosa y restauración/registro del fallo ante un candidato que no estabiliza. Los dos últimos usan AWS simulado y no sustituyen los ensayos reales. Se incorporan a CI junto con compilación Python y validación de sintaxis shell.
+
+## Intento posterior hacia 10k RPS
+
+Ver [capacity-results.md](capacity-results.md): se validaron escalones completos hasta 2.500 RPS durante un minuto. En 5k hubo 59 iteraciones descartadas y se abortó sin errores HTTP; no se ejecutó el escalón de 10k. Se restauró la configuración habitual. Esto amplía la evidencia de carga, pero no cierra el objetivo de 10k RPS.

@@ -1,0 +1,254 @@
+{
+  "checked_at": "2026-10-16T08:50:17.143268+00:00",
+  "period_seconds": 60,
+  "window_start": "2026-10-16T08:39:37.154301+00:00",
+  "window_end": "2026-10-16T08:49:02.149055+00:00",
+  "metrics": [
+    {
+      "namespace": "AWS/ECS",
+      "metric": "CPUUtilization",
+      "Label": "CPUUtilization",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-10-16T03:39:00-05:00",
+          "Average": 0.16427605391921435,
+          "Maximum": 0.9476742148399353,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:40:00-05:00",
+          "Average": 0.41706336438073777,
+          "Maximum": 1.0966111421585083,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:41:00-05:00",
+          "Average": 0.48666614230266236,
+          "Maximum": 1.5147870779037476,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:42:00-05:00",
+          "Average": 1.170089337353905,
+          "Maximum": 2.7150588035583496,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:43:00-05:00",
+          "Average": 4.053846816221873,
+          "Maximum": 5.051096439361572,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:44:00-05:00",
+          "Average": 6.670996834834416,
+          "Maximum": 8.43753433227539,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:45:00-05:00",
+          "Average": 12.542611360549927,
+          "Maximum": 17.29509925842285,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:46:00-05:00",
+          "Average": 19.15198000272115,
+          "Maximum": 27.903432846069336,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:47:00-05:00",
+          "Average": 3.3866086388685894,
+          "Maximum": 24.147899627685547,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:48:00-05:00",
+          "Average": 0.31068937921918405,
+          "Maximum": 1.026445984840393,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    {
+      "namespace": "AWS/ECS",
+      "metric": "MemoryUtilization",
+      "Label": "MemoryUtilization",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-10-16T03:39:00-05:00",
+          "Average": 0.244140625,
+          "Maximum": 0.390625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:40:00-05:00",
+          "Average": 0.13699001736111113,
+          "Maximum": 0.390625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:41:00-05:00",
+          "Average": 0.17496744791666666,
+          "Maximum": 0.390625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:42:00-05:00",
+          "Average": 0.42266845703125,
+          "Maximum": 0.5859375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:43:00-05:00",
+          "Average": 0.5869547526041667,
+          "Maximum": 0.634765625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:44:00-05:00",
+          "Average": 0.6062825520833333,
+          "Maximum": 0.68359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:45:00-05:00",
+          "Average": 0.6103515625,
+          "Maximum": 0.634765625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:46:00-05:00",
+          "Average": 0.6184895833333333,
+          "Maximum": 0.68359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:47:00-05:00",
+          "Average": 0.6551106770833334,
+          "Maximum": 0.68359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-10-16T03:48:00-05:00",
+          "Average": 0.6591796875,
+          "Maximum": 0.68359375,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    {
+      "namespace": "AWS/ApplicationELB",
+      "metric": "RequestCount",
+      "Label": "RequestCount",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-10-16T03:39:00-05:00",
+          "Sum": 0.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:40:00-05:00",
+          "Sum": 0.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:41:00-05:00",
+          "Sum": 1776.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:42:00-05:00",
+          "Sum": 8476.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:43:00-05:00",
+          "Sum": 29017.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:44:00-05:00",
+          "Sum": 57006.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:45:00-05:00",
+          "Sum": 125414.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:46:00-05:00",
+          "Sum": 229036.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:47:00-05:00",
+          "Sum": 10567.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-10-16T03:48:00-05:00",
+          "Sum": 0.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    {
+      "namespace": "AWS/ApplicationELB",
+      "metric": "TargetResponseTime",
+      "Label": "TargetResponseTime",
+      "Datapoints": [
+        {
+          "Timestamp": "2026-10-16T03:41:00-05:00",
+          "Average": 0.0006101266891891892,
+          "Maximum": 0.003992,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:42:00-05:00",
+          "Average": 0.0006542792590844737,
+          "Maximum": 0.024316,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:43:00-05:00",
+          "Average": 0.000604109659854568,
+          "Maximum": 0.03143,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:44:00-05:00",
+          "Average": 0.0005693454197803738,
+          "Maximum": 0.021993,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:45:00-05:00",
+          "Average": 0.0005507322388250116,
+          "Maximum": 0.039185,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:46:00-05:00",
+          "Average": 0.0005212852521001065,
+          "Maximum": 0.046616,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-10-16T03:47:00-05:00",
+          "Average": 0.0013077325636415254,
+          "Maximum": 0.032561,
+          "Unit": "Seconds"
+        }
+      ]
+    },
+    {
+      "namespace": "AWS/ApplicationELB",
+      "metric": "HTTPCode_Target_5XX_Count",
+      "Label": "HTTPCode_Target_5XX_Count",
+      "Datapoints": []
+    }
+  ]
+}

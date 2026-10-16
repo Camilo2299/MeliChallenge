@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-10-16T08:34:26.915528+00:00",
+  "scope": "Authenticated GET /v1/services fixtures; 60 seconds per stage",
+  "stages": [
+    {
+      "target_rps": 100,
+      "elapsed_seconds": 12.148,
+      "exit_code": 99,
+      "summary": "100.json",
+      "requests": 1185,
+      "observed_rps": 98.75796647596239,
+      "p95_ms": 132.85579999999996,
+      "p99_ms": 157.0864,
+      "error_rate": 0,
+      "successful": 1185,
+      "responses_429": 0,
+      "responses_5xx": 0,
+      "dropped_iterations": 6,
+      "generator_cpu_core_equivalents": 0.142
+    }
+  ],
+  "generator_max_rss_bytes_macos": 56770560,
+  "result": "stopped_at_failed_stage",
+  "finished_at": "2026-10-16T08:34:39.063947+00:00"
+}

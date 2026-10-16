@@ -26,7 +26,10 @@ def main():
     parser.add_argument('--load-test', action='store_true', help='Run separately authorized cloud test: 30 RPS for 60 seconds.')
     parser.add_argument('--resilience-drill', action='store_true', help='Run separately authorized task replacement and controlled revision rollback drill.')
     parser.add_argument('--rollback-only', action='store_true', help='With --resilience-drill, resume rollback without another task stop.')
+    parser.add_argument('--capacity-test', action='store_true', help='Run the separately approved 100–10,000 RPS capacity plan.')
     args = parser.parse_args()
+    if args.capacity_test and (args.load_test or args.resilience_drill):
+        parser.error('Run the capacity plan separately from smoke load or resilience drills.')
     if args.rollback_only and not args.resilience_drill:
         parser.error('--rollback-only requires --resilience-drill')
     authorize = urllib.parse.urlsplit(args.authorize_url)
@@ -120,7 +123,7 @@ def main():
             raise SystemExit(f'Authenticated API request failed with HTTP {exc.code}: {path}') from None
     Path(args.report).write_text(json.dumps(report, indent=2) + '\n')
     print('Report saved:', args.report, '(no tokens or credentials)')
-    if args.load_test or args.resilience_drill:
+    if args.load_test or args.resilience_drill or args.capacity_test:
         child_env = os.environ.copy()
         child_env['ACCESS_TOKEN'] = tokens['access_token']
         child_env['BASE_URL'] = args.api_url.rstrip('/')
@@ -132,6 +135,8 @@ def main():
         if args.resilience_drill:
             subprocess.run(['python3', str(root / 'cicd/resilience_drill.py'), '--execute'] +
                            (['--rollback-only'] if args.rollback_only else []), env=child_env, check=True)
+        if args.capacity_test:
+            subprocess.run(['python3', str(root / 'performance/capacity.py')], env=child_env, check=True)
         child_env.pop('ACCESS_TOKEN', None)
 
 

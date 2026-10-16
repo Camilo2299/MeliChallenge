@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-16T08:53:52.501692+00:00",
+  "terraform_post_restore_exit_code": 0,
+  "terraform_post_restore_result": "No changes. Your infrastructure matches the configuration.",
+  "configuration": {
+    "min_capacity": 2,
+    "max_capacity": 4,
+    "throttle_rate": 100,
+    "throttle_burst": 200
+  },
+  "ecs": [
+    {
+      "desired": 4,
+      "running": 4,
+      "pending": 0,
+      "taskDefinition": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:3",
+      "rollout": "COMPLETED"
+    }
+  ],
+  "smoke": "PASS readiness and JWT rejection without token"
+}
