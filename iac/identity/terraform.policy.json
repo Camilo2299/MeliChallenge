@@ -703,6 +703,27 @@
             "aws:RequestTag/Environment": "lab"
           }
         }
+      },
+      {
+        "Sid": "HttpApiAccessLogDelivery",
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogDelivery",
+          "logs:GetLogDelivery",
+          "logs:UpdateLogDelivery",
+          "logs:DeleteLogDelivery",
+          "logs:ListLogDeliveries",
+          "logs:PutResourcePolicy",
+          "logs:DescribeResourcePolicies"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
       }
     ]
   }
