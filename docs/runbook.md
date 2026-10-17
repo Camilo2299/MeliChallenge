@@ -1,5 +1,7 @@
 # Operación del laboratorio
 
+La operación normal de despliegue, rollback y destrucción usa **Lab lifecycle**; el mantenimiento de S3/ECR/presupuesto e identidad usa **Foundation maintenance**. Ver [lifecycle.md](lifecycle.md). Los comandos AWS/Terraform de este documento son herramientas de diagnóstico o recuperación externa, no el flujo normal de cambios.
+
 Antes de operar, confirmar perfil, cuenta, región y entorno; no usar root. La API AWS usa datos reales; el modo local conserva fixtures. Nunca imprimir JWT, passwords o secretos.
 
 ## Diagnóstico
@@ -11,19 +13,19 @@ Antes de operar, confirmar perfil, cuenta, región y entorno; no usar root. La A
 
 ## Rollback
 
-Ensayo realizado: ver validation-results.md. Para un incidente real, usar cicd/rollback.sh únicamente con ARN anterior comprobado, activo y autorización; definir AWS_REGION, CLUSTER, SERVICE y PREVIOUS_TASK_DEFINITION_ARN explícitamente. Las revisiones retiradas por Terraform no se pueden usar directamente para desplegar; revisar y volver a registrar su configuración conocida antes de elegirlas como destino. Luego reconciliar image_tag con la versión elegida en Terraform y revisar el plan; de lo contrario el siguiente apply deshará el rollback. El circuit breaker cubre fallos de arranque/health, no todas las regresiones.
+Ejecutar **Actions → Lab lifecycle → rollback** en `main`. El controlador aplica con Terraform la imagen anterior registrada en el manifiesto privado, espera estabilidad y repite la prueba autenticada. No depende de una task definition histórica retirada. Si aún no existe un despliegue exitoso anterior registrado, el workflow se detiene. ECS conserva además su circuit breaker para fallos de arranque/health; no cubre todas las regresiones.
 
-## Desmontaje seguro
+Los scripts antiguos de rollback por CLI se conservan como referencia de los ensayos históricos. No usarlos como procedimiento normal: pueden dejar drift respecto a Terraform.
 
-No se ha ejecutado destrucción. Para retirar el laboratorio con autorización:
+## Desmontaje y reconstrucción
 
-1. Guardar outputs, imagen de entrega, evidencias y estado remoto. Revisar los recursos asociados al estado lab; no tocar recursos ajenos.
-2. La protección ALB está activa. Preparar un plan con deletion_protection=false y aplicar solo tras revisión/autorización.
-3. Generar `terraform -chdir=iac plan -destroy -out=destroy.tfplan`; revisar todo. Ejecutar `terraform -chdir=iac apply destroy.tfplan` únicamente con autorización explícita. Verificar eliminación de NAT, ALB, tareas y liberación de EIP; escala ECS a cero no elimina esos costos.
-4. Mantener el bucket de estado, presupuesto y ECR mientras sea necesario entregar/reproducir/volver atrás. Bootstrap tiene estado separado y protección prevent_destroy en el bucket.
-5. No vaciar ECR ni quitar protección/vaciar versiones S3 automáticamente. Su eliminación requiere un plan de retención y autorización adicionales. Confirmar ausencia de costos residuales y otras cargas de la cuenta.
+Ejecutar primero **Lab lifecycle → destroy-plan** y revisar el inventario. Para borrar, seleccionar `destroy` y confirmar `DESTROY infra-signal-lab DATA`. Se pierden datos de DynamoDB y usuarios de Cognito. El workflow desactiva protecciones de ALB/DynamoDB con un plan dirigido y aplica un nuevo plan de destrucción. Si falla o se interrumpe, repetir `destroy` para completar el estado `destroying`. No lanzar cambios de infraestructura paralelos por CLI.
 
-AWS Budgets no corta el gasto ni garantiza una alerta instantánea. Consultar docs/costs.md antes de mantener el entorno encendido durante días.
+Se retienen bucket versionado, ECR, presupuesto y confianza OIDC/roles. Para reconstruir la aplicación, seleccionar `deploy`: usa la imagen inmutable y una generación nueva para dominio y secretos. Consultar la URL y secreto de demostración nuevos; los datos anteriores no se restauran. Un push no recrea un laboratorio marcado como ausente.
+
+No se ha ejecutado un ciclo destructivo real durante la instalación. Un plan exitoso no garantiza todos los permisos/tiempos de borrado de AWS. Tampoco borrar la aplicación vacía la cuenta: permanecen la base de control, historial de métricas y secretos pendientes de eliminación. Para modificar o retirar la raíz de confianza usar identidad externa y un plan de retención; la operación normal de la base pasa por **Foundation maintenance**.
+
+AWS Budgets no corta el gasto ni garantiza una alerta instantánea. Revisar [costos](costs.md) antes de mantener el laboratorio encendido durante días. Escalar ECS a cero no elimina el costo de NAT y ALB.
 
 ## Telemetría y frescura
 

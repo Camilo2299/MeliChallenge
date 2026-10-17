@@ -1,65 +1,41 @@
-# Identidades de GitHub Actions y AWS
+# GitHub Actions y AWS: identidades y permisos
 
-## Diseño
+La operación actual se describe en [lifecycle.md](lifecycle.md). El entorno AWS es `lab`, `us-east-1`, cuenta `026249143093`; los nombres GitHub `production` y `production-plan` no representan un segundo entorno AWS.
 
-```mermaid
-flowchart LR
-  GH[Camilo2299/MeliChallenge: main] --> OIDC[GitHub OIDC: aud sts.amazonaws.com]
-  OIDC --> P[image-publish: meli-ci-lab-publish]
-  OIDC --> R[production-plan: meli-ci-lab-plan]
-  OIDC --> A[production: aprobación Camilo2299]
-  A --> T[meli-ci-lab-terraform]
-  P --> ECR[ECR infra-signal-lab]
-  R --> READ[Lecturas de infraestructura]
-  R --> LOCK[S3 lab.tfstate: lectura / lockfile: escritura]
-  T --> INFRA[Aplicar plan de infraestructura del laboratorio]
-```
+| Rol | Environment GitHub | Alcance |
+|---|---|---|
+| `meli-ci-lab-publish` | `image-publish` | Autenticación y publicación ECR del repositorio del laboratorio. |
+| `meli-ci-lab-plan` | `production-plan` | Lecturas y lockfile; retenido para comprobaciones OIDC y planificación separada. No es un job obligatorio del flujo nuevo. |
+| `meli-ci-lab-terraform` | `production` | Plan/apply/destroy de la aplicación y smoke autenticado. No mantiene sus propios roles CI. |
+| `meli-ci-lab-foundation` | `foundation` | Mantenimiento de bootstrap y roles/políticas CI desde Actions. Sin borrados/reemplazos de la base. |
 
-Los nombres de entornos production-plan/production se conservaron del workflow, pero TF_ENVIRONMENT=lab: no representan una plataforma productiva ya desplegada. Cada entorno permite únicamente la rama main. `production` exige revisión de Camilo2299; se permite autoaprobación porque el laboratorio tiene un único responsable. No equivale a revisión independiente por dos personas. Se deshabilitó bypass administrativo de las protecciones del entorno.
+Todos los trusts exigen `aud=sts.amazonaws.com` y el subject exacto `repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:NOMBRE`. El repositorio usa IDs inmutables en sus subjects OIDC. Los environments permiten `main`; `production` y `foundation` tienen revisión del único responsable. No es revisión independiente de dos personas. No se almacenan access keys permanentes en Actions.
 
-Las trust policies usan StringEquals exacto para `aud=sts.amazonaws.com` y `sub=repo:Camilo2299@80074245/MeliChallenge@1421554656:environment:NOMBRE`. El prefijo con IDs inmutables se verificó en la API GitHub `actions/oidc/customization/sub`; este repositorio tiene `use_immutable_subject=true`. No hay wildcard en repositorio o entorno. Las sesiones duran como máximo una hora. El proveedor OIDC es global en la cuenta; el módulo admite reutilizar un proveedor existente para evitar duplicados.
+## Separación de confianza
 
-## Permisos
+`iac/bootstrap` contiene el bucket S3 privado, versionado/cifrado, ECR con etiquetas inmutables y presupuesto. `iac/identity` contiene OIDC y los tres roles CI iniciales. `iac/control` contiene el rol foundation y el techo de permisos CI. Los estados separados viven bajo `infra-signal/` en `infra-signal-lab-tfstate-026249143093-us-east-1`. La aplicación usa `lab.tfstate`; el generador de capacidad tiene su propio estado y no forma parte del destroy habitual.
 
-- Publicación: token ECR y pull/push/describe exclusivamente del repositorio infra-signal-lab. Sin ECS ni acceso al estado.
-- Plan: lecturas del stack y del objeto infra-signal/lab.tfstate; escritura/eliminación únicamente de su .tflock. No puede aplicar infraestructura ni escribir el objeto de estado.
-- Terraform: base de permisos para el plan inicial del laboratorio y actualización del servicio/task definition. PassRole solo permite infra-signal-lab-execution y infra-signal-lab-task hacia ecs-tasks.amazonaws.com. No puede administrar sus propios roles OIDC ni el estado identity.tfstate; la administración de identidad queda en la sesión humana SSO.
-- IAM de aplicación: crear/leer/etiquetar solo los dos roles ECS; adjuntar únicamente AmazonECSTaskExecutionRolePolicy al execution role. No hay AdministratorAccess, iam:* ni PassRole global. La API no hace llamadas AWS y su task role no necesita permisos adicionales.
-- Backend: los roles de CI solo acceden a la key del stack lab y su lockfile. No se permite leer/escribir el estado bootstrap ni el de identidad. ListBucket permite las keys concretas y el prefijo de descubrimiento de workspaces env:/; no da acceso a sus contenidos.
+El rol de aplicación solo escribe su estado/lockfile y `lifecycle.json`. El rol foundation escribe los estados bootstrap/identity y sus lockfiles. Ninguno administra el estado `control.tfstate`. La creación inicial de esta confianza requiere SSO externo; no puede ser creada por un pipeline que aún no está autorizado.
 
-Las políticas se separan en documentos administrados de menos de 6144 bytes. No se usa una política inline que exceda el límite agregado del rol.
+Los roles CI tienen el límite `meli-ci-lab-ci-ceiling`: sus políticas efectivas siguen siendo más restrictivas. El techo admite familias de servicios regionales necesarias, S3 de aplicación y operaciones IAM exclusivamente sobre los roles runtime, con `PassRole` condicionado a ECS. No concede administración IAM de la cuenta. Crear roles runtime exige el límite `meli-ci-lab-runtime-boundary`, que permite únicamente leer la imagen/secreto, emitir logs y consultar/escribir la telemetría prevista. Así, un cambio en las políticas inline runtime no permite concederles acceso administrativo.
 
-## Generación y revisión
+Foundation puede mantener las políticas con prefijos `meli-ci-lab-publish-*`, `plan-*` y `terraform-*`, y adjuntarlas únicamente a esos tres roles CI. Exige su techo de permisos al crear/cambiar el boundary. No puede modificar su propio rol/política, el techo CI ni el techo runtime. Estos elementos de confianza requieren la identidad externa para cambiarse. El guard de mantenimiento rechaza borrados/reemplazos y cambios del techo runtime antes del apply.
 
-La base se obtuvo con IAM Policy Autopilot 0.3.0 desde un plan Terraform real, **sin aplicar la infraestructura**:
+## Operación y validación
+
+**Verify Plan and Deploy** realiza gates de calidad, publicación ECR, y plan/apply con el rol de aplicación, seguido de prueba autenticada. El despliegue automático se controla con `LAB_AUTODEPLOY_ENABLED`. **Lab lifecycle** permite deploy/rollback/plan/destroy-plan/destroy. **Foundation maintenance** usa el rol separado para bootstrap/identity. Los workflows comparten exclusión mutua para evitar mutaciones simultáneas.
+
+`cicd/check_iam.py` comprueba tamaño de políticas, ausencia de acciones wildcard en los documentos efectivos, publisher restringido a ECR, rol plan sin mutaciones de infraestructura y `PassRole` acotado. Los techos tienen alcance más amplio que los permisos efectivos y se prueban por separado. Terraform prueba trusts exactos y los scripts prueban los guards de destrucción/mantenimiento. AWS Access Analyzer valida estructura/acciones; no demuestra por sí solo permisos suficientes ni aislamiento completo.
+
+Las políticas iniciales y de destrucción se derivaron con IAM Policy Autopilot desde planes Terraform reales, y se depuraron para eliminar permisos auxiliares/recursos ajenos y limitar ARNs. Ejemplo reproducible, sin publicar automáticamente las políticas:
 
 ```bash
 umask 077
-terraform -chdir=iac plan -var=image_tag=RELEASE -out=permissions.tfplan
-terraform -chdir=iac show -json permissions.tfplan > /tmp/meli-permissions-plan.json
-uvx iam-policy-autopilot@latest generate-policies /tmp/meli-permissions-plan.json \
-  --region us-east-1 --account 026249143093 --pretty
+terraform -chdir=iac show -json /ruta/plan.tfplan > /tmp/permissions-plan.json
+uvx iam-policy-autopilot@latest generate-policies /tmp/permissions-plan.json \
+  --region us-east-1 --account 026249143093 --resource-cutoff 100 --pretty
 ```
 
-No usar --upload-policies. El JSON/plan contienen potencialmente datos sensibles: se generaron con permisos privados y se retiraron después de generar la base. La salida automática **no era mínimo privilegio**: contenía PassRole global, recursos IAM ajenos y permisos auxiliares de OAM. Se eliminaron y se acotaron ARNs/namespaces; se consultó la referencia oficial de autorización para verificar acciones y alcance de recursos. Se añadieron lecturas de data sources (incluido ecr:DescribeImages, requerido por el proveedor en el primer plan), acceso S3 de backend y operaciones de actualización de ECS. Se permite CreateServiceLinkedRole solo para los roles administrados concretos de ECS, autoscaling ECS, ALB y API Gateway; se comprobaron como prerrequisitos del primer despliegue.
+Tratar plan/JSON como sensibles; no subirlos a Git. Para acciones de mantenimiento consultar la [referencia oficial de autorización](https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html). Una política generada no sustituye revisión del alcance ni la prueba real.
 
-Las seis políticas iniciales pasaron `aws accessanalyzer validate-policy --policy-type IDENTITY_POLICY` sin hallazgos. Esa validación comprueba estructura y buenas prácticas, **no garantiza permisos suficientes ni aislamiento completo**. `cicd/check_iam.py` verifica tamaños, acciones sin wildcard, plan sin mutaciones de infraestructura, publisher solo ECR y PassRole acotado. Las pruebas Terraform simuladas verifican las trust policies exactas.
-
-## Alcance y límites que deben revisarse después del primer despliegue
-
-Muchos IDs de red, API Gateway y Cognito no existen antes del primer apply. Parte de los permisos requiere ARNs regionales con wildcard de ID o Resource=* para APIs de lectura/creación. Las mutaciones de red existente exigen Project=infra-signal; las creaciones se restringen por cuenta/región y las operaciones con nombres conocidos por namespace. API Gateway y algunos IDs Cognito/autoscaling requieren una revisión adicional con los ARNs reales después del despliegue; no afirmar aislamiento perfecto por proyecto para todas las APIs.
-
-La política se deriva del plan inicial, no concede un catálogo general de administración/destroy ni garantiza todos los cambios futuros. Si un plan posterior necesita acciones adicionales, regenerar y revisar los permisos en este stack humano. No añadir permisos globales para resolver AccessDenied. Para activar secret_arn, revisar IAM específico; este laboratorio no lo utiliza.
-
-CloudTrail/alertas dedicadas para cambios IAM del pipeline no se aprovisionaron aquí. Recomendación antes de operación real: auditoría de sesiones OIDC, trail cifrado y validado, alertas de cambios de permisos y revisión independiente del plan. Los roles no crean esas protecciones automáticamente.
-
-## Estado y operación
-
-- Stack: iac/identity; módulo reutilizable: iac/modules/iam.
-- Backend: bucket infra-signal-lab-tfstate-026249143093-us-east-1, key infra-signal/identity.tfstate, encrypt y use_lockfile habilitados.
-- Aplicar **únicamente tras aprobar identity.tfplan**. Los 16 recursos IAM ya fueron aplicados; el plan posterior confirmó ausencia de drift. La comprobación OIDC real está en curso.
-- Variables GitHub configuradas con nombres/ARN previstos: AWS_REGION, AWS_ACCOUNT_ID, TF_ENVIRONMENT, TF_STATE_BUCKET, ECR_REPOSITORY_URL, AWS_PUBLISH_ROLE_ARN, AWS_PLAN_ROLE_ARN y AWS_DEPLOY_ROLE_ARN. Son configuración pública, no claves.
-- `Verify AWS OIDC` prueba STS/ECR sin crear infraestructura. La prueba del rol Terraform usa el entorno protegido y requiere la aprobación humana.
-- `Verify Plan and Deploy` sigue manual para despliegues. Publica la imagen con el rol publisher, genera el plan con el rol de lectura y aplica el mismo artefacto con el rol Terraform tras aprobación.
-
-No disparar deploy=true para probar autenticación. Un workflow de despliegue sí puede crear recursos facturables.
+Se requieren wildcards de IDs para crear/recrear recursos. Las mutaciones de red existente exigen `Project=infra-signal`; algunos permisos de API Gateway/Cognito son regionales y no garantizan aislamiento perfecto por proyecto. No se ha instalado una auditoría dedicada de CloudTrail/alertas para cambios IAM. Un plan de destrucción exitoso no prueba cada permiso de borrado: el ciclo destructivo real sigue sin ejecutarse durante esta instalación.

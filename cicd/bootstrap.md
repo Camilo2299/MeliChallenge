@@ -1,4 +1,6 @@
-# Despliegue inicial desde macOS
+# Referencia del arranque inicial con identidad externa
+
+**Operación actual:** usar los workflows **Lab lifecycle** y **Foundation maintenance**, descritos en [docs/lifecycle.md](../docs/lifecycle.md). Los comandos siguientes documentan el arranque histórico o recuperación externa; no son el procedimiento normal del laboratorio existente. La confianza inicial de `iac/control` requiere SSO; no se repite al reconstruir la aplicación.
 
 Usar Terraform >=1.10, AWS CLI v2, Docker Desktop y perfil SSO `devops-challenge`. Ejecutar desde devops-challenge/. No ejecutar apply hasta revisar el plan, cuenta, región y costo y obtener autorización. Estos comandos describen el procedimiento, no sustituyen evidencia. El laboratorio actual ya fue desplegado: consultar docs/deployment-progress.md. No repetir un bootstrap inicial ni migrar nuevamente su estado; usar el backend remoto existente.
 
@@ -53,7 +55,7 @@ docker build --platform linux/amd64 -t "$REPOSITORY:$RELEASE_TAG" ./api
 docker push "$REPOSITORY:$RELEASE_TAG"
 ```
 
-El build ejecuta tests. Publicar la imagen antes de crear el servicio ECS. Este flujo local se reemplazará por GitHub Actions con OIDC.
+El build ejecuta tests. Publicar la imagen antes de crear el servicio ECS. En la operación actual la publicación y el despliegue se realizan por GitHub Actions con OIDC.
 
 ## 4. Plan infraestructura y revisión
 
@@ -80,8 +82,8 @@ BASE_URL=$(terraform -chdir=iac output -raw api_url)
 bash cicd/smoke.sh "$BASE_URL"
 ```
 
-El smoke comprueba readiness 200 y rechazo JWT 401. Todavía falta validar una solicitud autenticada: crear un usuario administrado en Cognito, completar cambio de contraseña y OAuth authorization code + PKCE con callback permitida, solicitar scope `infra-metrics/read`, y probar el access token. No guardar tokens o contraseñas en Terraform ni en Git. No se han implementado aún las pruebas OAuth de extremo a extremo.
+El smoke básico comprueba readiness 200 y rechazo JWT 401. El pipeline actual añade `cicd/telemetry_smoke.py` con siete consultas autenticadas, persistencia y dos recolecciones reales; los tokens permanecen en memoria. Para acceso humano usar el dashboard Cognito/PKCE. En una reconstrucción nueva el workflow provisiona el usuario de demostración y guarda su contraseña inicial en Secrets Manager; no la exporta al estado o artefactos.
 
-## GitHub después del primer despliegue
+## Operación GitHub vigente
 
-Preparar OIDC y roles separados de Terraform/aplicación cuando se conozca el repositorio. El workflow existente es una plantilla: requiere variables AWS_REGION, TF_ENVIRONMENT, TF_STATE_BUCKET, ECR_REPOSITORY_URL, AWS_PLAN_ROLE_ARN y AWS_DEPLOY_ROLE_ARN, y entornos production-plan y production. Proteger production con revisores. No usar access keys permanentes. El rol de plan del workflow actual también publica la imagen; separar esas capacidades al cerrar IAM. No afirmar CI/CD operativo hasta ejecutar y verificar un workflow real.
+Consultar [identidades OIDC](../docs/iam-oidc.md) y [ciclo completo](../docs/lifecycle.md). Los roles, environments y variables ya están configurados para esta cuenta/repositorio. Mantener bootstrap/identidad con **Foundation maintenance**; publicar, desplegar, revertir o destruir la aplicación con los workflows de aplicación. `iac/control` es la raíz de confianza retenida y se mantiene con la identidad externa. No ejecutar nuevamente migraciones de estado ni bootstrap local sobre el laboratorio existente.
