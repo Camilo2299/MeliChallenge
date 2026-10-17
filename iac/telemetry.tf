@@ -27,13 +27,13 @@ resource "aws_secretsmanager_secret" "snapshot_signing" {
   recovery_window_in_days = 7
   tags                    = local.tags
 }
-ephemeral "aws_secretsmanager_random_password" "snapshot_signing" {
-  password_length     = 48
-  exclude_punctuation = true
+ephemeral "random_password" "snapshot_signing" {
+  length  = 48
+  special = false
 }
 resource "aws_secretsmanager_secret_version" "snapshot_signing" {
   secret_id                = aws_secretsmanager_secret.snapshot_signing.id
-  secret_string_wo         = ephemeral.aws_secretsmanager_random_password.snapshot_signing.random_password
+  secret_string_wo         = ephemeral.random_password.snapshot_signing.result
   secret_string_wo_version = 1
 }
 resource "aws_iam_role_policy" "snapshot_secret" {

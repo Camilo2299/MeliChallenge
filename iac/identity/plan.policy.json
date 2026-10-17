@@ -390,20 +390,6 @@
             "aws:RequestedRegion": "us-east-1"
           }
         }
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-          "secretsmanager:GetRandomPassword"
-        ],
-        "Resource": [
-          "*"
-        ],
-        "Condition": {
-          "StringEquals": {
-            "aws:RequestedRegion": "us-east-1"
-          }
-        }
       }
     ]
   }
