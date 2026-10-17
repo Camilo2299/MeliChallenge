@@ -20,7 +20,7 @@ variable "environment" {
 data "aws_caller_identity" "current" {}
 locals {
   name = "${var.project}-${var.environment}"
-  tags = { Project = var.project, Environment = var.environment, ManagedBy = "terraform" }
+  tags = { Project = var.project, Environment = var.environment, ManagedBy = "terraform", Automation = "github-actions" }
 }
 resource "aws_s3_bucket" "state" {
   bucket = "${local.name}-tfstate-${data.aws_caller_identity.current.account_id}-${var.aws_region}"

@@ -8,11 +8,12 @@ provider "aws" {
   allowed_account_ids = ["026249143093"]
 }
 module "iam" {
-  source             = "../modules/iam"
-  repository         = "Camilo2299/MeliChallenge"
-  repository_subject = "repo:Camilo2299@80074245/MeliChallenge@1421554656"
-  role_prefix        = "meli-ci-lab"
-  tags               = { Project = "infra-signal", Environment = "lab", ManagedBy = "terraform", Owner = "Camilo2299" }
+  source                   = "../modules/iam"
+  permissions_boundary_arn = "arn:aws:iam::026249143093:policy/meli-ci-lab-ci-ceiling"
+  repository               = "Camilo2299/MeliChallenge"
+  repository_subject       = "repo:Camilo2299@80074245/MeliChallenge@1421554656"
+  role_prefix              = "meli-ci-lab"
+  tags                     = { Project = "infra-signal", Environment = "lab", ManagedBy = "terraform", Owner = "Camilo2299", Automation = "github-actions" }
   roles = {
     publish   = { environment = "image-publish", policies = [for policy in jsondecode(file("${path.module}/publish.policy.json")) : jsonencode(policy)] }
     plan      = { environment = "production-plan", policies = [for policy in jsondecode(file("${path.module}/plan.policy.json")) : jsonencode(policy)] }

@@ -1,0 +1,192 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListInstanceProfilesForRole",
+        "iam:ListRoleTags",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:UpdateAssumeRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:role/meli-ci-lab-publish",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-plan",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-terraform"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:PutRolePermissionsBoundary"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:role/meli-ci-lab-publish",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-plan",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-terraform"
+      ],
+      "Condition": {
+        "ArnEquals": {
+          "iam:PermissionsBoundary": "arn:aws:iam::026249143093:policy/meli-ci-lab-ci-ceiling"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:role/meli-ci-lab-publish",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-plan",
+        "arn:aws:iam::026249143093:role/meli-ci-lab-terraform"
+      ],
+      "Condition": {
+        "ArnLike": {
+          "iam:PolicyARN": [
+            "arn:aws:iam::026249143093:policy/meli-ci-lab-publish-*",
+            "arn:aws:iam::026249143093:policy/meli-ci-lab-plan-*",
+            "arn:aws:iam::026249143093:policy/meli-ci-lab-terraform-*"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:ListPolicyTags"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-publish-*",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-plan-*",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-terraform-*",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-runtime-boundary",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-ci-ceiling"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreatePolicy",
+        "iam:CreatePolicyVersion",
+        "iam:DeletePolicyVersion",
+        "iam:SetDefaultPolicyVersion",
+        "iam:TagPolicy",
+        "iam:UntagPolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-publish-*",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-plan-*",
+        "arn:aws:iam::026249143093:policy/meli-ci-lab-terraform-*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetOpenIDConnectProvider",
+        "iam:ListOpenIDConnectProviderTags",
+        "iam:TagOpenIDConnectProvider",
+        "iam:UntagOpenIDConnectProvider",
+        "iam:AddClientIDToOpenIDConnectProvider",
+        "iam:RemoveClientIDFromOpenIDConnectProvider",
+        "iam:UpdateOpenIDConnectProviderThumbprint"
+      ],
+      "Resource": [
+        "arn:aws:iam::026249143093:oidc-provider/token.actions.githubusercontent.com"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:GetBucketAcl",
+        "s3:GetBucketTagging",
+        "s3:GetBucketVersioning",
+        "s3:GetEncryptionConfiguration",
+        "s3:GetBucketPublicAccessBlock",
+        "s3:GetBucketPolicy",
+        "s3:GetBucketPolicyStatus",
+        "s3:PutBucketTagging",
+        "s3:PutBucketVersioning",
+        "s3:PutEncryptionConfiguration",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:PutBucketPolicy",
+        "s3:GetBucketCORS",
+        "s3:GetBucketWebsite",
+        "s3:GetBucketLogging",
+        "s3:GetBucketRequestPayment",
+        "s3:GetReplicationConfiguration",
+        "s3:GetLifecycleConfiguration",
+        "s3:GetBucketObjectLockConfiguration",
+        "s3:GetAccelerateConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/bootstrap.tfstate",
+        "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/identity.tfstate"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/bootstrap.tfstate.tflock",
+        "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/identity.tfstate.tflock"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource",
+        "ecr:GetLifecyclePolicy",
+        "ecr:GetRepositoryPolicy",
+        "ecr:PutLifecyclePolicy",
+        "ecr:PutImageScanningConfiguration",
+        "ecr:PutImageTagMutability",
+        "ecr:TagResource",
+        "ecr:UntagResource",
+        "ecr:CreateRepository"
+      ],
+      "Resource": [
+        "arn:aws:ecr:us-east-1:026249143093:repository/infra-signal-lab"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "budgets:ViewBudget",
+        "budgets:ModifyBudget",
+        "budgets:ListTagsForResource",
+        "budgets:TagResource",
+        "budgets:UntagResource"
+      ],
+      "Resource": [
+        "arn:aws:budgets::026249143093:budget/infra-signal-lab-account-monthly"
+      ]
+    }
+  ]
+}

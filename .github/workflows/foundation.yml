@@ -1,0 +1,58 @@
+name: Foundation maintenance
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: 'Retained stack; control/root of trust is excluded'
+        type: choice
+        options: [all, bootstrap, identity]
+      operation:
+        description: 'Deletions and replacements are rejected'
+        type: choice
+        options: [plan, apply]
+        default: plan
+permissions:
+  contents: read
+concurrency:
+  group: infra-signal-deployment
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+    with:
+      infrastructure_only: true
+  maintain:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: foundation
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      TF_IN_AUTOMATION: 'true'
+      TF_VAR_monthly_budget_usd: ${{ vars.MONTHLY_BUDGET_USD }}
+      TF_VAR_budget_email: ${{ secrets.BUDGET_ALERT_EMAIL }}
+      STACK: ${{ inputs.stack }}
+      OPERATION: ${{ inputs.operation }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_FOUNDATION_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+          terraform_wrapper: false
+      - name: Maintain selected retained stacks
+        run: |
+          if [ "$STACK" = "all" ]; then
+            python3 cicd/foundation.py bootstrap "$OPERATION"
+            python3 cicd/foundation.py identity "$OPERATION"
+          else
+            python3 cicd/foundation.py "$STACK" "$OPERATION"
+          fi

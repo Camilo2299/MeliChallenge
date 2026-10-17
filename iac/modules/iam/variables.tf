@@ -18,3 +18,8 @@ variable "repository_subject" {
   default     = ""
   description = "Exact GitHub repository sub_claim_prefix when immutable subjects are enabled."
 }
+
+variable "permissions_boundary_arn" {
+  type    = string
+  default = null
+}

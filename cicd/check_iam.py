@@ -24,3 +24,13 @@ for name in ("publish", "plan", "terraform"):
                     else:
                         assert action == "apigateway:GET" or action.split(":")[1].startswith(("Get", "Describe", "List")), action
 print("PASS: policy sizes, publisher scope, read-only planning and bounded PassRole")
+
+foundation = json.loads((root.parent / "control" / "foundation.policy.json").read_text())
+assert len(json.dumps(foundation, separators=(",", ":"))) <= 6144
+for statement in foundation["Statement"]:
+    assert all("*" not in action for action in statement["Action"])
+    assert "iam:PassRole" not in statement["Action"]
+    assert "iam:DeleteRolePermissionsBoundary" not in statement["Action"]
+    if any(action.startswith("iam:") and not action.split(":")[1].startswith(("Get", "List")) for action in statement["Action"]):
+        assert not any("foundation" in resource or "ceiling" in resource or "runtime-boundary" in resource for resource in statement["Resource"])
+print("PASS: foundation policy cannot pass roles, remove boundaries, or modify control roles/policies")

@@ -12,6 +12,7 @@ resource "aws_iam_role" "github" {
   for_each             = var.roles
   name                 = "${var.role_prefix}-${each.key}"
   max_session_duration = 3600
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{ Effect = "Allow", Action = "sts:AssumeRoleWithWebIdentity", Principal = { Federated = local.provider_arn }, Condition = {
