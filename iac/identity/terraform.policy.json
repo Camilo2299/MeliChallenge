@@ -217,8 +217,8 @@
         "Resource": [
           "arn:aws:apigateway:us-east-1::/vpclinks",
           "arn:aws:apigateway:us-east-1::/vpclinks/*",
-          "arn:aws:apigateway:us-east-1::/apis/v1dbllhj9a/stages",
-          "arn:aws:apigateway:us-east-1::/apis/v1dbllhj9a/stages/*"
+          "arn:aws:apigateway:us-east-1::/apis/*/stages",
+          "arn:aws:apigateway:us-east-1::/apis/*/stages/*"
         ]
       }
     ]
@@ -502,7 +502,6 @@
       {
         "Effect": "Allow",
         "Action": [
-          "iam:CreateRole",
           "iam:GetRole",
           "iam:ListAttachedRolePolicies",
           "iam:ListInstanceProfilesForRole",
@@ -773,6 +772,228 @@
             "aws:RequestedRegion": "us-east-1"
           }
         }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "application-autoscaling:DeleteScalingPolicy",
+          "application-autoscaling:DeregisterScalableTarget"
+        ],
+        "Resource": [
+          "arn:aws:application-autoscaling:us-east-1:026249143093:scalable-target/*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:DeleteAlarms"
+        ],
+        "Resource": [
+          "arn:aws:cloudwatch:us-east-1:026249143093:alarm:infra-signal-lab-*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cognito-idp:DeleteResourceServer",
+          "cognito-idp:DeleteUserPool",
+          "cognito-idp:DeleteUserPoolClient",
+          "cognito-idp:DeleteUserPoolDomain"
+        ],
+        "Resource": [
+          "arn:aws:cognito-idp:us-east-1:026249143093:userpool/*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:DeleteTable",
+          "dynamodb:GetItem"
+        ],
+        "Resource": [
+          "arn:aws:dynamodb:us-east-1:026249143093:table/infra-signal-lab-telemetry"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DeleteInternetGateway",
+          "ec2:DeleteNatGateway",
+          "ec2:DeleteRouteTable",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteSubnet",
+          "ec2:DeleteVpc",
+          "ec2:DetachInternetGateway",
+          "ec2:DisassociateAddress",
+          "ec2:DisassociateRouteTable",
+          "ec2:ReleaseAddress"
+        ],
+        "Resource": [
+          "arn:aws:ec2:us-east-1:026249143093:*/*",
+          "arn:aws:ec2:us-east-1:026249143093:elastic-ip/*",
+          "arn:aws:ec2:us-east-1:026249143093:instance/*",
+          "arn:aws:ec2:us-east-1:026249143093:internet-gateway/*",
+          "arn:aws:ec2:us-east-1:026249143093:ipv4pool-ec2/*",
+          "arn:aws:ec2:us-east-1:026249143093:ipv6pool-ec2/*",
+          "arn:aws:ec2:us-east-1:026249143093:natgateway/*",
+          "arn:aws:ec2:us-east-1:026249143093:network-interface/*",
+          "arn:aws:ec2:us-east-1:026249143093:route-table/*",
+          "arn:aws:ec2:us-east-1:026249143093:security-group-rule/*",
+          "arn:aws:ec2:us-east-1:026249143093:security-group/*",
+          "arn:aws:ec2:us-east-1:026249143093:subnet/*",
+          "arn:aws:ec2:us-east-1:026249143093:vpc/*",
+          "arn:aws:ec2:us-east-1:026249143093:vpn-gateway/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:ResourceTag/Project": "infra-signal",
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecs:DeleteCluster",
+          "ecs:DeleteService"
+        ],
+        "Resource": [
+          "arn:aws:ecs:us-east-1:026249143093:cluster/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:service-deployment/infra-signal-lab/*/*",
+          "arn:aws:ecs:us-east-1:026249143093:service/infra-signal-lab/infra-signal-lab",
+          "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteTargetGroup"
+        ],
+        "Resource": [
+          "arn:aws:elasticloadbalancing:us-east-1:026249143093:listener/app/infra-signal-lab-alb/*/*",
+          "arn:aws:elasticloadbalancing:us-east-1:026249143093:loadbalancer/app/infra-signal-lab-alb/*",
+          "arn:aws:elasticloadbalancing:us-east-1:026249143093:targetgroup/infra-signal-lab-tg/*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:DeleteRole",
+          "iam:DeleteRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:GetRolePolicy"
+        ],
+        "Resource": [
+          "arn:aws:iam::026249143093:role/infra-signal-lab-execution",
+          "arn:aws:iam::026249143093:role/infra-signal-lab-task"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:DeleteLogGroup"
+        ],
+        "Resource": [
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:UpdateSecretVersionStage"
+        ],
+        "Resource": [
+          "arn:aws:secretsmanager:us-east-1:026249143093:secret:infra-signal-lab/snapshot-signing-*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:CreateRole",
+          "iam:PutRolePermissionsBoundary"
+        ],
+        "Resource": [
+          "arn:aws:iam::026249143093:role/infra-signal-lab-execution",
+          "arn:aws:iam::026249143093:role/infra-signal-lab-task"
+        ],
+        "Condition": {
+          "ArnEquals": {
+            "iam:PermissionsBoundary": "arn:aws:iam::026249143093:policy/meli-ci-lab-runtime-boundary"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:PutRolePolicy",
+          "iam:UpdateAssumeRolePolicy"
+        ],
+        "Resource": [
+          "arn:aws:iam::026249143093:role/infra-signal-lab-execution",
+          "arn:aws:iam::026249143093:role/infra-signal-lab-task"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "s3:prefix": "infra-signal/lifecycle.json"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::infra-signal-lab-tfstate-026249143093-us-east-1/infra-signal/lifecycle.json"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "cognito-idp:AdminCreateUser"
+        ],
+        "Resource": [
+          "arn:aws:cognito-idp:us-east-1:026249143093:userpool/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:ResourceTag/Project": "infra-signal",
+            "aws:ResourceTag/Environment": "lab"
+          }
+        }
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetResourcePolicy",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecretVersionIds",
+          "secretsmanager:PutSecretValue",
+          "secretsmanager:TagResource",
+          "secretsmanager:UntagResource",
+          "secretsmanager:DeleteSecret"
+        ],
+        "Resource": [
+          "arn:aws:secretsmanager:us-east-1:026249143093:secret:infra-signal-lab/demo-login-r*"
+        ]
       }
     ]
   }

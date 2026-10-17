@@ -41,7 +41,7 @@ resource "aws_cognito_user_pool_client" "api" {
 }
 resource "aws_cognito_user_pool_domain" "api" {
   count        = var.jwt_issuer == "" ? 1 : 0
-  domain       = "${local.name}-${data.aws_caller_identity.current.account_id}"
+  domain       = "${local.name}-${data.aws_caller_identity.current.account_id}${local.generation_suffix}"
   user_pool_id = aws_cognito_user_pool.api[0].id
 }
 locals {

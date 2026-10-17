@@ -1,0 +1,56 @@
+name: Quality gates
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Go format, tests and static analysis
+        working-directory: api
+        run: |
+          test -z "$(gofmt -l .)"
+          go test -race -cover ./...
+          go vet ./...
+      - name: Validate operational helpers
+        run: |
+          python3 -m py_compile cicd/lifecycle.py cicd/login_and_test.py cicd/create_demo_user.py cicd/resilience_drill.py cicd/telemetry_smoke.py
+          python3 -m unittest discover -s cicd/tests -v
+          python3 -m py_compile performance/capacity.py performance/collect_metrics.py performance/regional_run.py
+          python3 -m unittest discover -s performance/tests -v
+          for script in cicd/*.sh; do bash -n "$script"; done
+      - name: Build image for Fargate
+        run: docker build --platform linux/amd64 -t infra-signal:verify ./api
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: infra-signal:verify
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+      - run: terraform fmt -check -recursive iac
+      - run: terraform -chdir=iac init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=iac validate
+      - run: terraform -chdir=iac test
+      - run: terraform -chdir=iac/bootstrap init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=iac/bootstrap validate
+      - run: terraform -chdir=iac/identity init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=iac/identity validate
+      - run: terraform -chdir=iac/identity test
+      - run: terraform fmt -check -recursive performance/generator
+      - run: terraform -chdir=performance/generator init -backend=false -input=false -lockfile=readonly
+      - run: terraform -chdir=performance/generator validate
+      - run: python3 cicd/check_iam.py
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: '1'

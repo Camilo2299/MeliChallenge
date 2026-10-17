@@ -16,57 +16,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.27.2'
-          cache: false
-      - name: Go format, tests and static analysis
-        working-directory: api
-        run: |
-          test -z "$(gofmt -l .)"
-          go test -race -cover ./...
-          go vet ./...
-      - name: Validate operational helpers
-        run: |
-          python3 -m py_compile cicd/login_and_test.py cicd/create_demo_user.py cicd/resilience_drill.py cicd/telemetry_smoke.py
-          python3 -m unittest discover -s cicd/tests -v
-          python3 -m py_compile performance/capacity.py performance/collect_metrics.py performance/regional_run.py
-          python3 -m unittest discover -s performance/tests -v
-          for script in cicd/*.sh; do bash -n "$script"; done
-      - name: Build image for Fargate
-        run: docker build --platform linux/amd64 -t infra-signal:verify ./api
-      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: infra-signal:verify
-          severity: CRITICAL,HIGH
-          exit-code: '1'
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: '1.16.5'
-      - run: terraform fmt -check -recursive iac
-      - run: terraform -chdir=iac init -backend=false -input=false -lockfile=readonly
-      - run: terraform -chdir=iac validate
-      - run: terraform -chdir=iac test
-      - run: terraform -chdir=iac/bootstrap init -backend=false -input=false -lockfile=readonly
-      - run: terraform -chdir=iac/bootstrap validate
-      - run: terraform -chdir=iac/identity init -backend=false -input=false -lockfile=readonly
-      - run: terraform -chdir=iac/identity validate
-      - run: terraform -chdir=iac/identity test
-      - run: terraform fmt -check -recursive performance/generator
-      - run: terraform -chdir=performance/generator init -backend=false -input=false -lockfile=readonly
-      - run: terraform -chdir=performance/generator validate
-      - run: python3 cicd/check_iam.py
-      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          exit-code: '1'
+    uses: ./.github/workflows/verify.yml
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.deploy) || (github.event_name == 'push' && vars.LAB_AUTODEPLOY_ENABLED == 'true'))
     needs: verify
     runs-on: ubuntu-latest
     environment: image-publish
@@ -103,58 +55,19 @@ jobs:
           image-ref: ${{ vars.ECR_REPOSITORY_URL }}:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: '1'
-  plan:
-    needs: publish
-    runs-on: ubuntu-latest
-    environment: production-plan
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
-      TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
-      TF_VAR_image_tag: ${{ github.sha }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: '1.16.5'
-      - name: Initialize remote state
-        env:
-          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
-        run: |
-          terraform -chdir=iac init -input=false -lockfile=readonly \
-            -backend-config="bucket=$TF_STATE_BUCKET" \
-            -backend-config="key=infra-signal/${TF_VAR_environment}.tfstate" \
-            -backend-config="region=$AWS_REGION" \
-            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
-      - name: Create reviewable plan
-        run: |
-          terraform -chdir=iac plan -input=false -out=deployment.tfplan
-          terraform -chdir=iac show -no-color deployment.tfplan > iac/deployment-plan.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan
-          path: |
-            iac/deployment.tfplan
-            iac/deployment-plan.txt
-          retention-days: 1
   apply:
-    needs: plan
+    needs: publish
     runs-on: ubuntu-latest
     environment: production
     permissions:
       contents: read
       id-token: write
     env:
-      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
-      TF_VAR_environment: ${{ vars.TF_ENVIRONMENT }}
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_IN_AUTOMATION: 'true'
+      DEMO_USER_EMAIL: ${{ vars.DEMO_USER_EMAIL }}
+      AUTOMATIC: ${{ github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
@@ -165,25 +78,21 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '1.16.5'
-      - uses: actions/download-artifact@v4
+          terraform_wrapper: false
+      - name: Deploy and verify authenticated telemetry
+        run: |
+          if [ "$AUTOMATIC" = "true" ]; then
+            python3 cicd/lifecycle.py deploy --automatic
+          else
+            python3 cicd/lifecycle.py deploy
+          fi
+      - name: Reconcile temporary authentication after failure or cancellation
+        if: always()
+        run: python3 cicd/telemetry_smoke.py --profile '' --cleanup-only
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: terraform-plan
-          path: iac
-      - name: Initialize and apply reviewed plan
-        env:
-          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
-        run: |
-          terraform -chdir=iac init -input=false -lockfile=readonly \
-            -backend-config="bucket=$TF_STATE_BUCKET" \
-            -backend-config="key=infra-signal/${TF_VAR_environment}.tfstate" \
-            -backend-config="region=$AWS_REGION" \
-            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
-          terraform -chdir=iac apply -input=false deployment.tfplan
-      - name: Verify deployment
-        run: |
-          CLUSTER=$(terraform -chdir=iac output -raw ecs_cluster)
-          SERVICE=$(terraform -chdir=iac output -raw ecs_service)
-          BASE_URL=$(terraform -chdir=iac output -raw api_url)
-          aws ecs wait services-stable --cluster "$CLUSTER" --services "$SERVICE"
-          bash cicd/smoke.sh "$BASE_URL"
+          name: deployment-verification
+          path: telemetry-smoke.json
+          if-no-files-found: ignore
+          retention-days: 7

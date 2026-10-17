@@ -2,6 +2,7 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -23,7 +24,7 @@ class TelemetryProbeCleanup(unittest.TestCase):
     def exercise(self, fail_restore):
         operations = []
 
-        def cli(command):
+        def cli(command, **kwargs):
             service, action = command[1:3]
             operations.append(action)
             if action == 'get-caller-identity':
@@ -48,7 +49,7 @@ class TelemetryProbeCleanup(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as folder:
             report = Path(folder) / 'report.json'
-            with patch('sys.argv', ['probe', '--report', str(report)]), patch.object(probe.subprocess, 'check_output', side_effect=cli), patch.object(probe.urllib.request, 'urlopen', side_effect=http), patch.object(probe.time, 'sleep'), redirect_stdout(io.StringIO()):
+            with patch.dict(os.environ, {'RUNNER_TEMP': folder}), patch('sys.argv', ['probe', '--report', str(report)]), patch.object(probe.subprocess, 'check_output', side_effect=cli), patch.object(probe.urllib.request, 'urlopen', side_effect=http), patch.object(probe.time, 'sleep'), redirect_stdout(io.StringIO()):
                 with self.assertRaises(subprocess.CalledProcessError if fail_restore else AssertionError):
                     probe.main()
             self.assertIn('delete-user-pool-client', operations)

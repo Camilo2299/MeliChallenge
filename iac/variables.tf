@@ -54,6 +54,19 @@ variable "deletion_protection" {
   type    = bool
   default = true
 }
+variable "deployment_generation" {
+  type        = string
+  default     = ""
+  description = "Stable generation persisted by the lifecycle pipeline; changes only after a full destruction."
+  validation {
+    condition     = var.deployment_generation == "" || can(regex("^r[0-9]{1,20}$", var.deployment_generation))
+    error_message = "Use an empty legacy generation or r followed by a GitHub run ID."
+  }
+}
+variable "permissions_boundary_arn" {
+  type    = string
+  default = "arn:aws:iam::026249143093:policy/meli-ci-lab-runtime-boundary"
+}
 variable "secret_arn" {
   type        = string
   default     = ""

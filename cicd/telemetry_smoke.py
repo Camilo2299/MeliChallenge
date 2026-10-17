@@ -19,16 +19,39 @@ def main():
     parser.add_argument('--profile', default='devops-challenge')
     parser.add_argument('--report', default='/tmp/meli-real-telemetry.json')
     parser.add_argument('--load-test', action='store_true')
+    parser.add_argument('--cleanup-only', action='store_true')
+    parser.add_argument('--api-url', default='https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com')
+    parser.add_argument('--pool-id', default='us-east-1_krpZrFRXe')
+    parser.add_argument('--authorize-url', default='https://infra-signal-lab-026249143093.auth.us-east-1.amazoncognito.com/oauth2/authorize')
     args = parser.parse_args()
-    base = 'https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com'
-    api_id, pool, service = 'v1dbllhj9a', 'us-east-1_krpZrFRXe', 'infra-signal-lab'
-    oauth = 'https://infra-signal-lab-026249143093.auth.us-east-1.amazoncognito.com'
+    base = args.api_url.rstrip('/')
+    host = urllib.parse.urlsplit(base).hostname or ''
+    if not host.endswith('.execute-api.us-east-1.amazonaws.com') or not base.startswith('https://'):
+        raise ValueError('Expected a regional AWS API Gateway HTTPS URL')
+    api_id, pool, service = host.split('.')[0], args.pool_id, 'infra-signal-lab'
+    oauth = args.authorize_url.removesuffix('/oauth2/authorize')
+    if not oauth.startswith('https://infra-signal-lab-026249143093') or not oauth.endswith('.auth.us-east-1.amazoncognito.com'):
+        raise ValueError('Expected the project Cognito domain')
 
     def aws(*parts):
-        out = subprocess.check_output(['aws', *parts, '--profile', args.profile, '--region', 'us-east-1', '--output', 'json'])
+        out = subprocess.check_output(['aws', *parts, *(['--profile', args.profile] if args.profile else []), '--region', 'us-east-1', '--output', 'json'], stderr=subprocess.PIPE)
         return json.loads(out) if out.strip() else {}
 
     assert aws('sts', 'get-caller-identity')['Account'] == '026249143093'
+    cleanup_file = Path(os.environ.get('RUNNER_TEMP', '/tmp')) / 'meli-telemetry-cleanup.json'
+    if args.cleanup_only:
+        if not cleanup_file.exists():
+            return
+        pending = json.loads(cleanup_file.read_text())
+        aws('apigatewayv2', 'update-authorizer', '--api-id', pending['api_id'], '--authorizer-id', pending['authorizer_id'], '--jwt-configuration', json.dumps(pending['original']))
+        if pending.get('client_id'):
+            try:
+                aws('cognito-idp', 'delete-user-pool-client', '--user-pool-id', pending['pool'], '--client-id', pending['client_id'])
+            except subprocess.CalledProcessError as exc:
+                if not exc.stderr or b'ResourceNotFoundException' not in exc.stderr:
+                    raise RuntimeError('Temporary client cleanup failed; rerun reconciliation') from exc
+        cleanup_file.unlink()
+        return
     authors = aws('apigatewayv2', 'get-authorizers', '--api-id', api_id)['Items']
     author = next(a for a in authors if a['Name'] == 'organization-jwt')
     original = copy.deepcopy(author['JwtConfiguration'])
@@ -49,12 +72,16 @@ def main():
                     raise
                 time.sleep(3)
 
+    pending = {'api_id': api_id, 'pool': pool, 'authorizer_id': author['AuthorizerId'], 'original': original}
+    cleanup_file.write_text(json.dumps(pending))
     try:
         client = aws('cognito-idp', 'create-user-pool-client', '--cli-input-json', json.dumps({
             'UserPoolId': pool, 'ClientName': 'temporary-real-telemetry-probe', 'GenerateSecret': True,
             'AllowedOAuthFlowsUserPoolClient': True, 'AllowedOAuthFlows': ['client_credentials'],
             'AllowedOAuthScopes': ['infra-metrics/read']}))['UserPoolClient']
         client_id = client['ClientId']
+        pending['client_id'] = client_id
+        cleanup_file.write_text(json.dumps(pending))
         test_config = copy.deepcopy(original)
         test_config['Audience'].append(client_id)
         changed = True
@@ -137,6 +164,8 @@ def main():
                 if client_id:
                     aws('cognito-idp', 'delete-user-pool-client', '--user-pool-id', pool, '--client-id', client_id)
                     report['cleanup']['temporary_client_deleted'] = True
+                if report['cleanup'].get('original_audience_restored') and report['cleanup'].get('temporary_client_deleted'):
+                    cleanup_file.unlink(missing_ok=True)
             finally:
                 token = None
                 Path(args.report).write_text(json.dumps(report, indent=2) + '\n')

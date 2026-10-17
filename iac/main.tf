@@ -164,9 +164,10 @@ resource "aws_cloudwatch_log_group" "app" {
   tags              = local.tags
 }
 resource "aws_iam_role" "execution" {
-  name               = "${local.name}-execution"
-  assume_role_policy = jsonencode({ Version = "2012-10-17", Statement = [{ Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" }, Action = "sts:AssumeRole" }] })
-  tags               = local.tags
+  name                 = "${local.name}-execution"
+  assume_role_policy   = jsonencode({ Version = "2012-10-17", Statement = [{ Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" }, Action = "sts:AssumeRole" }] })
+  tags                 = local.tags
+  permissions_boundary = var.permissions_boundary_arn
 }
 resource "aws_iam_role_policy_attachment" "execution" {
   role       = aws_iam_role.execution.name
@@ -179,9 +180,10 @@ resource "aws_iam_role_policy" "secret_read" {
   policy = jsonencode({ Version = "2012-10-17", Statement = [{ Effect = "Allow", Action = ["secretsmanager:GetSecretValue"], Resource = [var.secret_arn] }] })
 }
 resource "aws_iam_role" "task" {
-  name               = "${local.name}-task"
-  assume_role_policy = aws_iam_role.execution.assume_role_policy
-  tags               = local.tags
+  name                 = "${local.name}-task"
+  assume_role_policy   = aws_iam_role.execution.assume_role_policy
+  tags                 = local.tags
+  permissions_boundary = var.permissions_boundary_arn
 }
 resource "aws_ecs_cluster" "main" {
   name = local.name

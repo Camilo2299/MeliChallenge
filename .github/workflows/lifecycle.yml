@@ -1,0 +1,90 @@
+name: Lab lifecycle
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Workload operation; control foundation is retained'
+        type: choice
+        options: [plan, deploy, rollback, destroy-plan, destroy]
+        default: plan
+      confirmation:
+        description: 'For destroy only: DESTROY infra-signal-lab DATA (deletes metrics and Cognito users)'
+        type: string
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: infra-signal-deployment
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+  publish:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && inputs.operation == 'deploy'
+    runs-on: ubuntu-latest
+    environment: image-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PUBLISH_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Test and build immutable release
+        env:
+          REPOSITORY: ${{ vars.ECR_REPOSITORY_URL }}
+        run: |
+          set -euo pipefail
+          if ! aws ecr describe-images --repository-name infra-signal-lab --image-ids imageTag="$GITHUB_SHA" >/dev/null 2>&1; then
+            docker build --platform linux/amd64 -t "$REPOSITORY:$GITHUB_SHA" ./api
+            docker push "$REPOSITORY:$GITHUB_SHA"
+          fi
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: ${{ vars.ECR_REPOSITORY_URL }}:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+  operate:
+    needs: [verify, publish]
+    if: always() && needs.verify.result == 'success' && github.ref == 'refs/heads/main' && (needs.publish.result == 'success' || needs.publish.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_IN_AUTOMATION: 'true'
+      DEMO_USER_EMAIL: ${{ vars.DEMO_USER_EMAIL }}
+      OPERATION: ${{ inputs.operation }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+          terraform_wrapper: false
+      - name: Apply lifecycle operation
+        run: python3 cicd/lifecycle.py "$OPERATION" --confirmation "$CONFIRMATION"
+      - name: Reconcile temporary authentication after failure or cancellation
+        if: always()
+        run: python3 cicd/telemetry_smoke.py --profile '' --cleanup-only
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lifecycle-verification
+          path: telemetry-smoke.json
+          if-no-files-found: ignore
+          retention-days: 7
