@@ -14,6 +14,13 @@ import urllib.request
 from datetime import datetime, timezone
 
 
+
+def metrics_ready(snapshot, service):
+    assert snapshot['source'] == 'aws-cloudwatch-ecs' and snapshot['service']['id'] == service
+    series = {metric['id']: metric for metric in snapshot['metrics']}
+    return all(series.get(metric, {}).get('points') for metric in ('cpu', 'memory'))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', default='devops-challenge')
@@ -93,14 +100,20 @@ def main():
         with urllib.request.urlopen(req, timeout=20) as res:
             token = json.load(res)['access_token']
         del credentials, client
-        for attempt in range(20):
+        # Fresh ECS/CloudWatch series can arrive after service readiness. Wait for
+        # actual samples; never accept fixtures or synthesize zero-valued points.
+        for attempt in range(36):
             try:
                 first, _ = get('/v1/metrics')
-                break
+                if metrics_ready(first, service):
+                    report['metric_availability_retries'] = attempt
+                    break
             except urllib.error.HTTPError as err:
-                if err.code not in (401, 403, 503) or attempt == 19:
+                if err.code != 503 or attempt == 35:
                     raise RuntimeError(f'Authenticated probe returned HTTP {err.code}') from None
-                time.sleep(3)
+            if attempt == 35:
+                raise AssertionError('CloudWatch did not publish CPU/memory samples within the startup window')
+            time.sleep(10)
         assert first['source'] == 'aws-cloudwatch-ecs' and first['service']['id'] == service
         assert len(first['metrics']) == 10
         for metric_id in ('cpu', 'memory'):

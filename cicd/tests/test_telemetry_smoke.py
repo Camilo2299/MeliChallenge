@@ -65,3 +65,16 @@ class TelemetryProbeCleanup(unittest.TestCase):
 
     def test_restore_failure_still_deletes_client(self):
         self.exercise(True)
+
+
+class FreshMetricReadiness(unittest.TestCase):
+    def test_waits_for_real_cpu_and_memory_points(self):
+        snapshot = {'source': 'aws-cloudwatch-ecs', 'service': {'id': 'infra-signal-lab'},
+                    'metrics': [{'id': 'cpu', 'points': []}, {'id': 'memory', 'points': [1]}]}
+        self.assertFalse(probe.metrics_ready(snapshot, 'infra-signal-lab'))
+        snapshot['metrics'][0]['points'] = [1]
+        self.assertTrue(probe.metrics_ready(snapshot, 'infra-signal-lab'))
+
+    def test_fixture_source_is_rejected_instead_of_retried(self):
+        with self.assertRaises(AssertionError):
+            probe.metrics_ready({'source': 'fixtures'}, 'infra-signal-lab')
