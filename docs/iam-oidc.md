@@ -39,3 +39,23 @@ uvx iam-policy-autopilot@latest generate-policies /tmp/permissions-plan.json \
 Tratar plan/JSON como sensibles; no subirlos a Git. Para acciones de mantenimiento consultar la [referencia oficial de autorización](https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html). Una política generada no sustituye revisión del alcance ni la prueba real.
 
 Se requieren wildcards de IDs para crear/recrear recursos. Las mutaciones de red existente exigen `Project=infra-signal`; algunos permisos de API Gateway/Cognito son regionales y no garantizan aislamiento perfecto por proyecto. No se ha instalado una auditoría dedicada de CloudTrail/alertas para cambios IAM. Un plan de destrucción exitoso no prueba cada permiso de borrado: el ciclo destructivo real sigue sin ejecutarse durante esta instalación.
+
+## Configuración GitHub para reproducir los workflows
+
+En **Settings → Secrets and variables → Actions**, configurar las siguientes variables con valores de los outputs Terraform de la cuenta destino. También pueden existir en el environment correspondiente; comprobar su alcance antes de ejecutar.
+
+| Variable | Uso / valor del laboratorio |
+|---|---|
+| `AWS_REGION` | `us-east-1` |
+| `AWS_ACCOUNT_ID` | ID de cuenta destino; laboratorio `026249143093` |
+| `TF_ENVIRONMENT` | `lab` |
+| `TF_STATE_BUCKET` | Bucket de bootstrap; laboratorio `infra-signal-lab-tfstate-026249143093-us-east-1` |
+| `ECR_REPOSITORY_URL` | URL del repositorio ECR creado por bootstrap |
+| `AWS_PUBLISH_ROLE_ARN` | ARN del rol publisher de identidad |
+| `AWS_DEPLOY_ROLE_ARN` | ARN del rol Terraform de identidad |
+| `AWS_FOUNDATION_ROLE_ARN` | ARN del rol foundation de control |
+| `LAB_AUTODEPLOY_ENABLED` | `true` habilita despliegue desde push main |
+| `DEMO_USER_EMAIL` | Correo elegido para el usuario de nuevas generaciones; no envía invitación |
+| `MONTHLY_BUDGET_USD` | `80`; alerta presupuestaria, no límite automático de gasto |
+
+Crear el **secret** `BUDGET_ALERT_EMAIL` para foundation; no es una access key ni una contraseña AWS. Nunca guardar contraseñas, JWT o access keys como variables públicas. Los environments `image-publish`, `production`, `production-plan` (rol retenido) y `foundation` deben coincidir con los subjects de sus trusts; limitar ramas a main y configurar los gates de revisión previstos. En otra cuenta/repositorio, adaptar los IDs inmutables OIDC y políticas; copiar solo estas variables no instala la raíz de confianza.

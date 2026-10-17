@@ -1,5 +1,7 @@
 # Validación local — 13 de octubre de 2026
 
+> Registro histórico del 13 de octubre, anterior a los despliegues y telemetría real. Los pendientes y contenedores mencionados corresponden a esa sesión, no al estado actual. Ver [checklist vigente](audit.md) y [pipelines](lifecycle.md).
+
 Resultados ejecutados en Docker Desktop sobre macOS ARM64:
 
 - `docker build -t infra-signal-api:local ./api`: correcto; incluye `go test ./...` y compilación estática.

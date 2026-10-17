@@ -2,7 +2,7 @@
 
 **Operación actual:** usar los workflows **Lab lifecycle** y **Foundation maintenance**, descritos en [docs/lifecycle.md](../docs/lifecycle.md). Los comandos siguientes documentan el arranque histórico o recuperación externa; no son el procedimiento normal del laboratorio existente. La confianza inicial de `iac/control` requiere SSO; no se repite al reconstruir la aplicación.
 
-Usar Terraform >=1.10, AWS CLI v2, Docker Desktop y perfil SSO `devops-challenge`. Ejecutar desde devops-challenge/. No ejecutar apply hasta revisar el plan, cuenta, región y costo y obtener autorización. Estos comandos describen el procedimiento, no sustituyen evidencia. El laboratorio actual ya fue desplegado: consultar docs/deployment-progress.md. No repetir un bootstrap inicial ni migrar nuevamente su estado; usar el backend remoto existente.
+Usar Terraform >=1.11 (CI fija 1.16.5), AWS CLI v2, Docker Desktop y perfil SSO `devops-challenge`. Ejecutar desde devops-challenge/. No ejecutar apply hasta revisar el plan, cuenta, región y costo y obtener autorización. Estos comandos describen el procedimiento, no sustituyen evidencia. El laboratorio actual ya fue desplegado: consultar docs/deployment-progress.md. No repetir un bootstrap inicial ni migrar nuevamente su estado; usar el backend remoto existente.
 
 ## 1. Sesión y parámetros
 
@@ -14,7 +14,7 @@ aws sts get-caller-identity
 cp iac/bootstrap/terraform.tfvars.example iac/bootstrap/terraform.tfvars
 ```
 
-Editar el archivo ignorado por Git con región, presupuesto aprobado y correo real. Los créditos reportados no confirman el presupuesto. No usar root. Verificar que la cuenta sea la acordada y que no haya recursos homónimos de otro proyecto. `lab` y `production` usan estados, nombres y permisos separados.
+Editar el archivo ignorado por Git con región, presupuesto aprobado y correo real. Los créditos reportados no confirman el presupuesto. No usar root. Verificar que la cuenta sea la acordada y que no haya recursos homónimos de otro proyecto. Solo `lab` está desplegado. El environment GitHub `production` es un gate, no otro entorno AWS. Un entorno AWS adicional requiere estados, nombres y permisos separados.
 
 ## 2. Plan bootstrap y revisión
 

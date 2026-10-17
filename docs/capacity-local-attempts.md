@@ -1,4 +1,4 @@
-> Historial de los intentos en macOS, previo al resultado regional exitoso. Para el resultado actual de 10k RPS ver [capacity-results.md](capacity-results.md).
+> Historial de los intentos en macOS, previo al resultado regional exitoso. Para el benchmark regional histórico de fixtures ver [capacity-results.md](capacity-results.md); para la versión real vigente ver [telemetry-capacity-results.md](telemetry-capacity-results.md).
 
 # Intento de capacidad hacia 10.000 RPS
 

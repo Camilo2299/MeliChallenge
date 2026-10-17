@@ -1,8 +1,8 @@
 # Historial del despliegue y validación
 
-**Actualización de telemetría real:** revisión ECS :6 desplegada mediante Terraform, DynamoDB y Secrets Manager activos; siete consultas reales autenticadas y 30 RPS/60 s comprobados. Ver [telemetry.md](telemetry.md) y [reporte](evidence/real-telemetry.json). El pico de 10k siguiente pertenece a la imagen anterior.
+**Estado de referencia actual:** telemetría CloudWatch/ECS persistida en DynamoDB y firmada con Secrets Manager. Versión real: 5k/60 s y 10k/30 s; el intento real de 10k/60 s tuvo descartes. [Resultados](telemetry-capacity-results.md). [Deploy posterior por Actions](https://github.com/Camilo2299/MeliChallenge/actions/runs/39001245527) con smoke autenticado y [foundation](https://github.com/Camilo2299/MeliChallenge/actions/runs/39000421161) exitosos. Destroy/recreate completo aún no ensayado.
 
-**Estado final:** laboratorio desplegado, login humano probado y pico regional de 10.000 RPS durante 60 s completado. Generador temporal retirado y perfil habitual restaurado. Ver [reporte final](morning-report.md). Las secciones siguientes conservan el estado que tuvo cada hito, no representan todas el estado actual.
+Las secciones siguientes conservan el estado de cada hito histórico; referencias a pendientes, revisión :6 o pico de fixtures no representan el estado actual. Ver [resumen vigente](morning-report.md).
 
 Ejecución: https://github.com/Camilo2299/MeliChallenge/actions/runs/38846419254
 

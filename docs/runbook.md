@@ -23,7 +23,7 @@ Ejecutar primero **Lab lifecycle → destroy-plan** y revisar el inventario. Par
 
 Se retienen bucket versionado, ECR, presupuesto y confianza OIDC/roles. Para reconstruir la aplicación, seleccionar `deploy`: usa la imagen inmutable y una generación nueva para dominio y secretos. Consultar la URL y secreto de demostración nuevos; los datos anteriores no se restauran. Un push no recrea un laboratorio marcado como ausente.
 
-No se ha ejecutado un ciclo destructivo real durante la instalación. Un plan exitoso no garantiza todos los permisos/tiempos de borrado de AWS. Tampoco borrar la aplicación vacía la cuenta: permanecen la base de control, historial de métricas y secretos pendientes de eliminación. Para modificar o retirar la raíz de confianza usar identidad externa y un plan de retención; la operación normal de la base pasa por **Foundation maintenance**.
+No se ha ejecutado un ciclo destructivo real durante la instalación. Un plan exitoso no garantiza todos los permisos/tiempos de borrado de AWS. Tampoco borrar la aplicación vacía la cuenta: permanecen la base de control y secretos pendientes de eliminación; la tabla y su historial de métricas se destruyen. Para modificar o retirar la raíz de confianza usar identidad externa y un plan de retención; la operación normal de la base pasa por **Foundation maintenance**.
 
 AWS Budgets no corta el gasto ni garantiza una alerta instantánea. Revisar [costos](costs.md) antes de mantener el laboratorio encendido durante días. Escalar ECS a cero no elimina el costo de NAT y ALB.
 

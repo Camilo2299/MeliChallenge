@@ -21,6 +21,8 @@ La documentación está en http://localhost:8080/docs. Las consultas locales no 
 
 ## Laboratorio AWS desplegado
 
+Las URLs e IDs siguientes corresponden al despliegue documentado. Tras destruir/recrear, obtener los nuevos valores de los outputs del workflow/Terraform; los anteriores dejan de ser válidos.
+
 ```bash
 bash cicd/smoke.sh https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com
 ```
@@ -46,9 +48,9 @@ Ver [telemetría](docs/telemetry.md) para rutas, persistencia, frescura y límit
 
 1. Seguir [bootstrap](cicd/bootstrap.md) para estado, ECR y presupuesto; revisar [IAM/OIDC](docs/iam-oidc.md) y adaptar cuenta, repo y políticas antes de usar otra cuenta.
 2. Configurar las variables y entornos protegidos de GitHub descritos allí. No crear access keys permanentes para Actions.
-3. Ejecutar Actions → workflow de despliegue → Run workflow en main, con deploy=true. Push y PR ejecutan CI; el despliegue requiere ejecución manual.
-4. Revisar el artefacto terraform-plan, costos y alcance. Aprobar production para aplicar el plan guardado. El workflow espera estabilidad ECS y ejecuta el smoke HTTPS.
-5. Ejecutar el login anterior para la validación autenticada. Conservar evidencias sin secretos.
+3. En el laboratorio existente, usar **Actions → Lab lifecycle → deploy** en main. También se despliega desde push main cuando `LAB_AUTODEPLOY_ENABLED=true`, después de CI y del gate protegido `production`. Los PR ejecutan verificaciones.
+4. Revisar costos y alcance antes de aprobar el job del environment `production`. El controlador genera y aplica el mismo plan guardado dentro del job; no publica un artefacto `terraform-plan` ni ofrece una aprobación adicional entre plan y apply. Para inspeccionar un plan previamente, usar **Lab lifecycle → plan**; el deploy posterior genera un plan nuevo. El workflow espera estabilidad ECS y comprueba autenticación, persistencia y dos recolecciones reales.
+5. Ejecutar el login anterior para la validación humana. El artefacto `deployment-verification` contiene el reporte sin tokens. Para mantenimiento de bootstrap/identidad usar **Foundation maintenance**. Ver [lifecycle](docs/lifecycle.md).
 
 Tras un apply parcial, generar otro plan sobre el estado remoto: no reutilizar el binario anterior. No modificar el estado para ocultar errores.
 
