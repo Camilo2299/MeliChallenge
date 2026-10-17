@@ -1,5 +1,7 @@
 # Reporte final: pico de 10.000 RPS completado
 
+> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La ampliación de telemetría real está documentada en [telemetry.md](telemetry.md); no extrapolar el benchmark sin repetirlo.
+
 **Resultado: todos los escalones regionales pasaron.** El endpoint autenticado GET /v1/services completó una meseta de 60 s con 600.002 respuestas válidas: media 10.000,03 RPS, p95 9,05 ms y p99 21,87 ms. Cero errores HTTP, 429, 5xx y dropped_iterations.
 
 La prueba usó k6 oficial Linux ARM64 en un EC2 temporal dentro de us-east-1 y 16 tareas Fargate preparadas. Atravesó el endpoint público API Gateway, JWT Cognito M2M con scope de lectura, VPC Link y ALB interno. No se deshabilitó autenticación ni se accedió directamente al backend. La secuencia completa envió 1.241.329 solicitudes válidas.

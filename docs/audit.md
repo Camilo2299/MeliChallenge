@@ -1,5 +1,7 @@
 # Checklist de entrega frente al challenge
 
+> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La ampliación de telemetría real está documentada en [telemetry.md](telemetry.md); no extrapolar el benchmark sin repetirlo.
+
 Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despliegue real. La implementación usa Go por elección explícita del candidato. Este checklist distingue implementación, evidencia y brechas; no equivale a certificar una operación enterprise.
 
 | Requisito del PDF | Estado | Archivo / evidencia | Forma de comprobar o pendiente |

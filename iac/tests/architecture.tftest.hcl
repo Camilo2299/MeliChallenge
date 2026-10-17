@@ -16,6 +16,14 @@ variables { image_tag = "test-release" }
 run "private_backend" {
   command = apply
   assert {
+    condition = aws_dynamodb_table.telemetry.billing_mode == "PAY_PER_REQUEST" && aws_dynamodb_table.telemetry.ttl[0].enabled && aws_dynamodb_table.telemetry.server_side_encryption[0].enabled
+    error_message = "Real telemetry requires an encrypted on-demand table with bounded history."
+  }
+  assert {
+    condition = contains([for secret in jsondecode(aws_ecs_task_definition.app.container_definitions)[0].secrets : secret.name], "SNAPSHOT_SIGNING_KEY") && aws_secretsmanager_secret.snapshot_signing.recovery_window_in_days >= 7
+    error_message = "Snapshot signing key must be injected from Secrets Manager with recovery protection."
+  }
+  assert {
     condition     = length(aws_apigatewayv2_authorizer.jwt.jwt_configuration[0].audience) == 1
     error_message = "The normal lab must accept only the original consumer client."
   }

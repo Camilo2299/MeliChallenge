@@ -1,0 +1,61 @@
+resource "aws_dynamodb_table" "telemetry" {
+  name                        = "${local.name}-telemetry"
+  billing_mode                = "PAY_PER_REQUEST"
+  hash_key                    = "pk"
+  range_key                   = "sk"
+  deletion_protection_enabled = var.deletion_protection
+  attribute {
+    name = "pk"
+    type = "S"
+  }
+  attribute {
+    name = "sk"
+    type = "S"
+  }
+  ttl {
+    attribute_name = "expires_at"
+    enabled        = true
+  }
+  server_side_encryption { enabled = true }
+  point_in_time_recovery { enabled = true }
+  tags = local.tags
+}
+
+resource "aws_secretsmanager_secret" "snapshot_signing" {
+  name                    = "${local.name}/snapshot-signing"
+  description             = "HMAC key for authenticating persisted telemetry snapshots; never an API access credential."
+  recovery_window_in_days = 7
+  tags                    = local.tags
+}
+ephemeral "aws_secretsmanager_random_password" "snapshot_signing" {
+  password_length     = 48
+  exclude_punctuation = true
+}
+resource "aws_secretsmanager_secret_version" "snapshot_signing" {
+  secret_id                = aws_secretsmanager_secret.snapshot_signing.id
+  secret_string_wo         = ephemeral.aws_secretsmanager_random_password.snapshot_signing.random_password
+  secret_string_wo_version = 1
+}
+resource "aws_iam_role_policy" "snapshot_secret" {
+  name = "telemetry-signing-secret"
+  role = aws_iam_role.execution.id
+  policy = jsonencode({ Version = "2012-10-17", Statement = [{
+    Effect = "Allow", Action = ["secretsmanager:GetSecretValue"], Resource = aws_secretsmanager_secret.snapshot_signing.arn
+  }] })
+}
+resource "aws_iam_role_policy" "telemetry" {
+  name = "real-infrastructure-telemetry"
+  role = aws_iam_role.task.id
+  policy = jsonencode({ Version = "2012-10-17", Statement = [
+    { Effect = "Allow", Action = ["cloudwatch:GetMetricData"], Resource = "*" },
+    { Effect = "Allow", Action = ["ecs:DescribeServices"], Resource = "arn:aws:ecs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:service/${local.name}/${local.name}" },
+    { Effect = "Allow", Action = ["dynamodb:GetItem", "dynamodb:Query", "dynamodb:UpdateItem", "dynamodb:PutItem"], Resource = aws_dynamodb_table.telemetry.arn }
+  ] })
+}
+
+output "telemetry_table" { value = aws_dynamodb_table.telemetry.name }
+output "snapshot_signing_secret_arn" {
+  value       = aws_secretsmanager_secret.snapshot_signing.arn
+  description = "Secret identifier only, never the signing key."
+}
+output "dashboard_url" { value = "${aws_apigatewayv2_api.api.api_endpoint}/dashboard" }

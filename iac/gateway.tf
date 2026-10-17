@@ -22,7 +22,7 @@ resource "aws_cognito_resource_server" "metrics" {
   user_pool_id = aws_cognito_user_pool.api[0].id
   scope {
     scope_name        = "read"
-    scope_description = "Read infrastructure sample metrics"
+    scope_description = "Read infrastructure metrics"
   }
 }
 resource "aws_cognito_user_pool_client" "api" {
@@ -34,7 +34,7 @@ resource "aws_cognito_user_pool_client" "api" {
   allowed_oauth_flows_user_pool_client = true
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid", "email", "${aws_cognito_resource_server.metrics[0].identifier}/read"]
-  callback_urls                        = var.callback_urls
+  callback_urls                        = distinct(concat(var.callback_urls, ["${aws_apigatewayv2_api.api.api_endpoint}/dashboard"]))
   prevent_user_existence_errors        = "ENABLED"
   enable_token_revocation              = true
   explicit_auth_flows                  = ["ALLOW_REFRESH_TOKEN_AUTH", "ALLOW_USER_SRP_AUTH"]
@@ -47,7 +47,7 @@ resource "aws_cognito_user_pool_domain" "api" {
 locals {
   jwt_issuer    = var.jwt_issuer != "" ? var.jwt_issuer : "https://${aws_cognito_user_pool.api[0].endpoint}"
   jwt_audiences = var.jwt_issuer != "" ? var.jwt_audiences : concat([aws_cognito_user_pool_client.api[0].id], var.additional_jwt_audiences)
-  routes        = toset(["GET /v1/services", "GET /v1/services/{service_id}", "GET /v1/deployments", "GET /v1/summary"])
+  routes        = toset(["GET /v1/services", "GET /v1/services/{service_id}", "GET /v1/deployments", "GET /v1/summary", "GET /v1/metrics", "GET /v1/metrics/history"])
 }
 resource "aws_apigatewayv2_api" "api" {
   name          = local.name
@@ -93,6 +93,13 @@ resource "aws_apigatewayv2_route" "business" {
 resource "aws_apigatewayv2_route" "ready" {
   api_id             = aws_apigatewayv2_api.api.id
   route_key          = "GET /health/ready"
+  target             = "integrations/${aws_apigatewayv2_integration.app.id}"
+  authorization_type = "NONE"
+}
+resource "aws_apigatewayv2_route" "dashboard" {
+  for_each           = toset(["GET /dashboard", "GET /dashboard.js", "GET /dashboard/config"])
+  api_id             = aws_apigatewayv2_api.api.id
+  route_key          = each.value
   target             = "integrations/${aws_apigatewayv2_integration.app.id}"
   authorization_type = "NONE"
 }

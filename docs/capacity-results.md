@@ -1,5 +1,7 @@
 # Resultado de capacidad: pico de 10.000 RPS validado
 
+> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La ampliación de telemetría real está documentada en [telemetry.md](telemetry.md); no extrapolar el benchmark sin repetirlo.
+
 El 16 de octubre de 2026 se completaron todos los escalones regionales hasta **10.000 RPS** sobre `GET /v1/services`, con JWT Cognito y fixtures. En el minuto de medición de 10k se recibieron **600.002 respuestas válidas**, media **10.000,03 RPS**, **p95 9,05 ms**, **p99 21,87 ms**, sin errores HTTP, 429, 5xx ni iteraciones descartadas.
 
 ## Resultados regionales

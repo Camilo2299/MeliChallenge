@@ -210,8 +210,21 @@ resource "aws_ecs_task_definition" "app" {
     readonlyRootFilesystem = true,
     portMappings = [{
     containerPort = 8080, protocol = "tcp" }],
-    environment      = [{ name = "ENVIRONMENT", value = var.environment }],
-    secrets          = var.secret_arn == "" ? [] : [{ name = "API_TOKEN", valueFrom = var.secret_arn }],
+    environment = [
+      { name = "ENVIRONMENT", value = var.environment },
+      { name = "AWS_REGION", value = var.aws_region },
+      { name = "METRICS_TABLE", value = aws_dynamodb_table.telemetry.name },
+      { name = "ECS_CLUSTER", value = local.name },
+      { name = "ECS_SERVICE", value = local.name },
+      { name = "ALB_DIMENSION", value = aws_lb.internal.arn_suffix },
+      { name = "GATEWAY_ID", value = aws_apigatewayv2_api.api.id },
+      { name = "COGNITO_CLIENT_ID", value = try(aws_cognito_user_pool_client.api[0].id, "") },
+      { name = "COGNITO_OAUTH_BASE", value = var.jwt_issuer == "" ? "https://${aws_cognito_user_pool_domain.api[0].domain}.auth.${var.aws_region}.amazoncognito.com" : "" }
+    ],
+    secrets = concat(
+      [{ name = "SNAPSHOT_SIGNING_KEY", valueFrom = aws_secretsmanager_secret_version.snapshot_signing.arn }],
+      var.secret_arn == "" ? [] : [{ name = "API_TOKEN", valueFrom = var.secret_arn }]
+    ),
     logConfiguration = { logDriver = "awslogs", options = { "awslogs-group" = aws_cloudwatch_log_group.app.name, "awslogs-region" = var.aws_region, "awslogs-stream-prefix" = "api" } },
     healthCheck = {
       command     = ["CMD", "/infra-signal", "healthcheck"]
@@ -247,7 +260,7 @@ resource "aws_ecs_service" "app" {
     container_port   = 8080
   }
   wait_for_steady_state = true
-  depends_on            = [aws_lb_listener.http, aws_iam_role_policy_attachment.execution, aws_route_table_association.private, aws_vpc_security_group_ingress_rule.app_alb, aws_vpc_security_group_egress_rule.alb_app]
+  depends_on            = [aws_lb_listener.http, aws_iam_role_policy_attachment.execution, aws_iam_role_policy.snapshot_secret, aws_iam_role_policy.telemetry, aws_route_table_association.private, aws_vpc_security_group_ingress_rule.app_alb, aws_vpc_security_group_egress_rule.alb_app]
   lifecycle {
     ignore_changes = [desired_count]
   } # managed by Application Auto Scaling

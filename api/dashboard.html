@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Infra Signal · AWS</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0c1424;color:#e8edf7}body{max-width:1200px;margin:auto;padding:32px}header{display:flex;justify-content:space-between;align-items:center}h1{font-size:32px;margin-bottom:6px}p{color:#aabbcf;line-height:1.5}button{background:#61ddb4;color:#08241d;border:0;border-radius:8px;padding:12px 20px;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:default}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}.card{background:#152238;border:1px solid #2b3d56;border-radius:12px;padding:20px}.value{font-size:28px;font-weight:650;margin:12px 0}.detail{font-size:12px;color:#aabbcf}.status{padding:16px;border-left:4px solid #61ddb4;background:#152238;margin:24px 0;white-space:pre-wrap}.warn{border-color:#ffbf69}svg{width:100%;height:70px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid #2b3d56;overflow-wrap:anywhere}#deployments{overflow:auto}code{overflow-wrap:anywhere}a{color:#61ddb4}h2{margin-top:32px}
+</style><script src="/dashboard.js" defer></script></head>
+<body><header><div><h1>Infra Signal</h1><p>Métricas de nuestra infraestructura AWS · us-east-1</p></div><button id="login">Iniciar sesión</button></header>
+<div id="status" class="status" role="status">Inicia sesión con Cognito para consultar la infraestructura.</div>
+<p>La vista consulta la API cada 3 segundos. CloudWatch publica métricas con periodos de 60 segundos; cada tarjeta muestra la fecha de medición. “Sin datos” no significa cero errores.</p>
+<section id="service" class="card" hidden></section><section id="metrics" class="grid" aria-label="Métricas"></section>
+<h2>Despliegues actuales de ECS</h2><div id="deployments"><p>Sin sesión iniciada.</p></div>
+<p>Histórico persistido de snapshots: 24 horas. La API expone los últimos 30 snapshots en <code>/v1/metrics/history</code>. Las series de cada tarjeta muestran hasta 15 minutos de CloudWatch.</p>
+</body></html>

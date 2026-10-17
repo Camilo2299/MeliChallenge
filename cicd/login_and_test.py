@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--api-url', required=True)
     parser.add_argument('--authorize-url', required=True)
     parser.add_argument('--client-id', required=True)
+    parser.add_argument('--service-id', default='infra-signal-lab')
     parser.add_argument('--report', default='/tmp/meli-authenticated-smoke.json')
     parser.add_argument('--load-test', action='store_true', help='Run separately authorized cloud test: 30 RPS for 60 seconds.')
     parser.add_argument('--resilience-drill', action='store_true', help='Run separately authorized task replacement and controlled revision rollback drill.')
@@ -105,18 +106,27 @@ def main():
     if tokens.get('token_type', '').lower() != 'bearer':
         raise SystemExit('Cognito returned an unexpected token type.')
     report = {'generated_at': datetime.now(timezone.utc).isoformat(), 'api_url': args.api_url, 'checks': []}
-    for path in ['/v1/services', '/v1/services?environment=production', '/v1/services/gateway', '/v1/deployments?service_id=gateway', '/v1/summary']:
+    service_id = urllib.parse.quote(args.service_id, safe='')
+    paths = ['/v1/services', '/v1/services?environment=lab', '/v1/services/' + service_id,
+             '/v1/deployments?service_id=' + service_id, '/v1/summary', '/v1/metrics', '/v1/metrics/history']
+    for path in paths:
         request = urllib.request.Request(args.api_url.rstrip('/') + path, headers={'Authorization': 'Bearer ' + tokens['access_token']})
         try:
             with urllib.request.urlopen(request, timeout=15) as response:
                 payload = json.load(response)
                 assert response.status == 200
                 if path == '/v1/summary':
-                    assert payload['total_services'] == 3 and payload['source'] == 'sample-data'
-                elif path == '/v1/services/gateway':
-                    assert payload['id'] == 'gateway'
+                    assert payload['total_services'] == 1 and payload['source'] == 'aws-cloudwatch-ecs'
+                    assert payload['stale'] is False
+                elif path == '/v1/metrics':
+                    assert payload['source'] == 'aws-cloudwatch-ecs' and len(payload['metrics']) == 10
+                    assert payload['service']['id'] == args.service_id
+                elif path == '/v1/metrics/history':
+                    assert payload['source'] == 'aws-cloudwatch-ecs' and len(payload['snapshots']) > 0
+                elif path.startswith('/v1/services/'):
+                    assert payload['id'] == args.service_id
                 else:
-                    assert len(payload) == {'/v1/services': 3, '/v1/services?environment=production': 2, '/v1/deployments?service_id=gateway': 1}[path]
+                    assert isinstance(payload, list) and len(payload) >= 1
                 report['checks'].append({'path': path, 'status': response.status, 'request_id': response.headers.get('X-Request-ID')})
                 print('PASS authenticated GET', path)
         except urllib.error.HTTPError as exc:

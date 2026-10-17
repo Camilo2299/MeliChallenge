@@ -1,4 +1,4 @@
-// Infra Signal exposes illustrative operational data, not live telemetry.
+// Infra Signal serves AWS telemetry when METRICS_TABLE is configured.
 package main
 
 import (
@@ -163,9 +163,20 @@ func main() {
 		}
 		return
 	}
-	server := &http.Server{Addr: ":8080", Handler: newHandler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 * 1024}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+	var handler http.Handler = newHandler()
+	if os.Getenv("METRICS_TABLE") != "" {
+		t, err := newTelemetry(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		t.run(ctx)
+		handler = t.handler(handler)
+		log.Print("AWS telemetry enabled; DynamoDB refresh 3s, collection 60s")
+	}
+	handler = dashboardHandler(handler)
+	server := &http.Server{Addr: ":8080", Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16 * 1024}
 	done := make(chan struct{})
 	go func() {
 		<-ctx.Done()
@@ -177,7 +188,7 @@ func main() {
 		}
 		close(done)
 	}()
-	log.Print("Infra Signal API listening on :8080 (sample data)")
+	log.Print("Infra Signal API listening on :8080")
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

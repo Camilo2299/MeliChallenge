@@ -1,5 +1,7 @@
 # Resumen técnico de la solución
 
+> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La ampliación de telemetría real está documentada en [telemetry.md](telemetry.md); no extrapolar el benchmark sin repetirlo.
+
 ## Qué está demostrado
 
 - API REST Go, endpoints, errores, health checks, Docker/Compose y tests.

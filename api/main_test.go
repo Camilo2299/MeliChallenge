@@ -158,7 +158,7 @@ func TestDocumentation(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &spec); err != nil {
 		t.Fatal(err)
 	}
-	if w.Code != 200 || spec.OpenAPI != "3.0.3" || len(spec.Paths) != 6 {
+	if w.Code != 200 || spec.OpenAPI != "3.0.3" || len(spec.Paths) != 8 || spec.Paths["/v1/metrics"] == nil || spec.Paths["/v1/metrics/history"] == nil {
 		t.Fatal(w.Body.String())
 	}
 	w = request(h, "/docs")

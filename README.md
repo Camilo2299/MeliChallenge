@@ -1,5 +1,7 @@
 # Challenge — DevOps & Platform Engineering
 
+**Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Implementación en validación; las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
+
 **Implementación de referencia:** API REST de estado de infraestructura con Go (`net/http`), dockerización, pruebas unitarias, IaC para AWS ECS Fargate, CI/CD GitHub Actions y decisiones de producción explícitas.
 
 > **Transparencia:** la API funciona con datos *sample*, no consulta sistemas reales. Se validó un pico regional de **10.000 RPS durante 60 segundos** en GET /v1/services con fixtures y 16 tareas; [reporte y límites](docs/capacity-results.md). No acredita carga sostenida ni pérdida de AZ bajo ese pico. El laboratorio AWS fue desplegado mediante GitHub Actions y Terraform; se comprobaron readiness, rechazo sin token y cinco consultas autenticadas. Ver [evidencias](docs/deployment-progress.md).

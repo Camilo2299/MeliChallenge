@@ -31,8 +31,8 @@ export default function () {
   const response = http.get(`${base}/v1/services`, { headers, timeout: '10s' });
   check(response, {
     'HTTP 200': r => r.status === 200,
-    'three fixture services': r => {
-      try { return Array.isArray(r.json()) && r.json().length === 3; } catch (_) { return false; }
+    'expected service inventory': r => {
+      try { return Array.isArray(r.json()) && r.json().length === Number(__ENV.SERVICE_COUNT || (local ? 3 : 1)); } catch (_) { return false; }
     },
   });
 }
