@@ -61,7 +61,9 @@ Errores de negocio/validación: `{"error":{"code":"NOT_FOUND","message":"..."}}`
 
 ## 3. Arquitectura AWS
 
-Ver [`docs/architecture.md`](docs/architecture.md) para el diagrama y las limitaciones.
+![Arquitectura AWS implementada](docs/architecture.svg)
+
+Ver [`docs/architecture.md`](docs/architecture.md) para los flujos, decisiones y limitaciones; [descargar SVG](docs/architecture.svg).
 
 - API Gateway HTTP API con JWT de Cognito y scope `infra-metrics/read` → VPC Link → ALB interno → ECS Fargate privado en dos AZ.
 - HTTPS público en el dominio AWS de API Gateway; `/health/ready` es pública. Las rutas de negocio requieren autenticación. No se publica Swagger en Gateway.
@@ -71,7 +73,7 @@ Ver [`docs/architecture.md`](docs/architecture.md) para el diagrama y las limita
 
 ## 4. Despliegue y estado actual
 
-Bootstrap, identidad OIDC y plataforma fueron aplicados con Terraform. El [pipeline de despliegue exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/38857181854) incluye la verificación posterior. La ampliación real se aplicó con Terraform usando SSO y conserva los roles OIDC del pipeline. El [reporte de telemetría real](docs/evidence/real-telemetry.json) registra siete consultas autenticadas 200, persistencia y dos recolecciones sucesivas. El reporte anterior de cinco consultas con fixtures se conserva como histórico. Ver también [`docs/bootstrap-evidence.md`](docs/bootstrap-evidence.md). Revisar [`cicd/bootstrap.md`](cicd/bootstrap.md) para el procedimiento reproducible y [`docs/costs.md`](docs/costs.md) para costos.
+Bootstrap, identidad OIDC y plataforma fueron aplicados con Terraform. El [pipeline de despliegue exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/39001245527) incluye la verificación posterior. El pipeline actual aplica la plataforma y verifica la telemetría real mediante OIDC; bootstrap/identidad tienen mantenimiento separado por Actions. La raíz de confianza inicial requiere SSO y Terraform. El [reporte de telemetría real](docs/evidence/real-telemetry.json) registra siete consultas autenticadas 200, persistencia y dos recolecciones sucesivas. El reporte anterior de cinco consultas con fixtures se conserva como histórico. Ver también [`docs/bootstrap-evidence.md`](docs/bootstrap-evidence.md). Revisar [`cicd/bootstrap.md`](cicd/bootstrap.md) para el procedimiento reproducible y [`docs/costs.md`](docs/costs.md) para costos.
 
 GitHub Actions ejecuta pruebas Go, build Linux/amd64, escaneos y validación/pruebas Terraform en push/PR. El workflow **Lab lifecycle** agrega despliegue, rollback, plan y destrucción/reconstrucción del laboratorio. Conserva la base de control (estado, imágenes e identidad). Ver [procedimiento, alcance y límites](docs/lifecycle.md); incluye el workflow separado de mantenimiento de bootstrap/identidad y la excepción de inicialización de confianza. Los gates del environment `production` siguen vigentes. La capacidad de destruir está preparada; no implica que se haya ejecutado un ciclo destructivo real.
 
@@ -85,7 +87,7 @@ Planificar el retiro del laboratorio con [`docs/runbook.md`](docs/runbook.md). A
 2. Escalado gradual: 100, 500, 1k, 5k, 10k RPS; 5 min cada tramo; generar desde load generators con capacidad suficiente, tras revisar cuotas regionales de API Gateway y ajustar el throttling del laboratorio.
 3. Soak test: 10k RPS durante 30 minutos si se cumplieron los SLOs. Inyectar caída controlada de una AZ / kill de task y medir recuperación.
 4. Métricas: RPS real entregado, p95/p99, errores 5xx, saturación CPU/mem, task desired/running, ALB target response time, lag del autoscaler, throttling, NAT cost.
-5. Gates propuestos: éxito >=99.9%, p95 <200ms, sin errores no controlados y HA en failover. Se cumplieron los criterios de error y latencia en el pico regional de 60 s; soak y failover bajo esa carga siguen pendientes.
+5. Gates propuestos: éxito >=99.9%, p95 <200ms, sin errores no controlados y HA en failover. La versión real pasó 10k/30 s; el intento de 60 s tuvo descartes. Soak y failover bajo esa carga siguen pendientes.
 
 Guion k6 de ejemplo: [`docs/loadtest.js`](docs/loadtest.js). El guion `performance/loadtest.js` usa límites conservadores: hasta 1.000 RPS locales y 30 RPS/60 s en cloud con JWT en memoria. `docs/loadtest.js` conserva una entrada compatible. La prueba local de 100 RPS durante 60 s pasó; ver `docs/evidence/local-load.json`. El plan de cierre AWS está en `docs/validation-plan.md`. Una prueba de 10k RPS requiere otro plan, cuotas, dimensionamiento, autorización de gasto y generadores suficientes; estos resultados no se extrapolan a esa meta.
 
@@ -105,4 +107,4 @@ Solo está desplegado el entorno `lab` en `us-east-1`. Los nombres de entornos G
 
 Pruebas de cierre: [resultados medidos y alcance](docs/validation-results.md), [preparación de producción](docs/production-readiness.md) y [resumen técnico](docs/delivery-summary.md).
 
-Prueba posterior de capacidad: [escalones AWS y diagnóstico](docs/capacity-results.md). El generador regional completó 10.000 RPS por un minuto, sin errores ni descartes. Los intentos anteriores en el Mac se conservan como historial. Ver [correspondencia con el diagrama original](docs/architecture-compliance.md) para elementos opcionales no desplegados.
+Prueba posterior de capacidad: [escalones AWS y diagnóstico](docs/capacity-results.md). Ese ensayo histórico con fixtures completó 10.000 RPS por un minuto, sin errores ni descartes; para la versión real ver [mediciones posteriores](docs/telemetry-capacity-results.md). Los intentos anteriores en el Mac se conservan como historial. Ver [correspondencia con el diagrama original](docs/architecture-compliance.md) para elementos opcionales no desplegados.

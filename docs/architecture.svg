@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1160" viewBox="0 0 1600 1160"><defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0 0L10 4L0 8" fill="#53657b"/></marker></defs><rect width="1600" height="1160" fill="#f5f7fb"/><style>text{font-family:Arial,Helvetica,sans-serif;fill:#162a43}.title{font-size:30px;font-weight:bold}.sub{font-size:17px;fill:#52647c}.head{font-size:18px;font-weight:bold}.body{font-size:16px}.small{font-size:14px;fill:#52647c}.edge{fill:none;stroke:#53657b;stroke-width:2;marker-end:url(#arrow)}</style>
+<text x="40" y="46" class="title">AWS · API de métricas de infraestructura</text>
+<text x="40" y="76" class="sub">infra-signal-lab | us-east-1 | Arquitectura implementada en Terraform</text>
+<rect x="40" y="135" width="260" height="100" rx="12" fill="white" stroke="#6575c4" stroke-width="2"/>
+<text x="56" y="163" class="head">Clientes / dashboard</text>
+<text x="56" y="189" class="body">HTTPS · datos autenticados</text>
+<text x="56" y="212" class="body">Dashboard consulta cada 3 s</text>
+<rect x="350" y="120" width="310" height="115" rx="12" fill="white" stroke="#aa4fc2" stroke-width="2"/>
+<text x="366" y="148" class="head">Amazon Cognito</text>
+<text x="366" y="174" class="body">OAuth code + PKCE</text>
+<text x="366" y="197" class="body">JWT · scope infra-metrics/read</text>
+<rect x="350" y="275" width="310" height="110" rx="12" fill="white" stroke="#aa4fc2" stroke-width="2"/>
+<text x="366" y="303" class="head">API Gateway · HTTP API</text>
+<text x="366" y="329" class="body">TLS del dominio execute-api</text>
+<text x="366" y="352" class="body">JWT authorizer + throttling</text>
+<path d="M300 185H350" class="edge"/>
+<path d="M170 235V330H350" class="edge"/>
+<path d="M505 235V275" class="edge"/>
+<rect x="710" y="115" width="850" height="480" rx="16" fill="#eef8f4" stroke="#29865c" stroke-width="2"/>
+<text x="735" y="148" class="head">VPC 10.80.0.0/16 · dos zonas de disponibilidad</text>
+<rect x="755" y="180" width="750" height="65" rx="12" fill="white" stroke="#29865c" stroke-width="2"/>
+<text x="771" y="208" class="head">VPC Link · integración privada</text>
+<path d="M660 330H690V212H755" class="edge"/>
+<rect x="755" y="280" width="750" height="65" rx="12" fill="white" stroke="#e18c27" stroke-width="2"/>
+<text x="771" y="308" class="head">Application Load Balancer interno · HTTP 80 · health checks</text>
+<path d="M1130 245V280" class="edge"/>
+<rect x="755" y="385" width="360" height="115" rx="12" fill="white" stroke="#e18c27" stroke-width="2"/>
+<text x="771" y="413" class="head">AZ A · subred privada</text>
+<text x="771" y="439" class="body">ECS Fargate · API Go :8080</text>
+<text x="771" y="462" class="body">Caché RAM + recolector integrado</text>
+<rect x="755" y="525" width="360" height="50" rx="12" fill="white" stroke="#29865c" stroke-width="2"/>
+<text x="771" y="553" class="head">Subred pública · NAT Gateway</text>
+<rect x="1145" y="385" width="360" height="115" rx="12" fill="white" stroke="#e18c27" stroke-width="2"/>
+<text x="1161" y="413" class="head">AZ B · subred privada</text>
+<text x="1161" y="439" class="body">ECS Fargate · API Go :8080</text>
+<text x="1161" y="462" class="body">Caché RAM + recolector integrado</text>
+<rect x="1145" y="525" width="360" height="50" rx="12" fill="white" stroke="#29865c" stroke-width="2"/>
+<text x="1161" y="553" class="head">Subred pública · NAT Gateway</text>
+<path d="M930 345V385" class="edge"/>
+<path d="M1320 345V385" class="edge"/>
+<path d="M930 500V525" class="edge"/>
+<path d="M1320 500V525" class="edge"/>
+<rect x="40" y="440" width="300" height="125" rx="12" fill="white" stroke="#aa4fc2" stroke-width="2"/>
+<text x="56" y="468" class="head">CloudWatch / ECS</text>
+<text x="56" y="494" class="body">Métricas + DescribeServices</text>
+<text x="56" y="517" class="body">Logs Gateway / aplicación</text>
+<text x="56" y="540" class="body">Container Insights · alarmas</text>
+<rect x="375" y="440" width="290" height="125" rx="12" fill="white" stroke="#ce5274" stroke-width="2"/>
+<text x="391" y="468" class="head">Secrets Manager</text>
+<text x="391" y="494" class="body">snapshot-signing · clave HMAC</text>
+<text x="391" y="517" class="body">ECS inyecta el secreto</text>
+<text x="391" y="540" class="body">Execution role separado</text>
+<path d="M665 485H755" class="edge"/>
+<text x="740" y="625" class="small">ECS: 2 tareas habituales · autoscaling 2–4 · sin IP pública · salida HTTPS por NAT</text>
+<rect x="40" y="680" width="420" height="145" rx="12" fill="white" stroke="#e18c27" stroke-width="2"/>
+<text x="56" y="708" class="head">Recolección dentro de la API Go</text>
+<text x="56" y="734" class="body">Consulta CloudWatch/ECS cada 60 s</text>
+<text x="56" y="757" class="body">Lease distribuido: un recolector activo</text>
+<text x="56" y="780" class="body">Firma HMAC SHA-256 de snapshots</text>
+<text x="56" y="803" class="body">Métricas fuente con resolución de 1 min</text>
+<rect x="530" y="680" width="460" height="145" rx="12" fill="white" stroke="#3983c3" stroke-width="2"/>
+<text x="546" y="708" class="head">Amazon DynamoDB</text>
+<text x="546" y="734" class="body">Snapshots actuales + histórico · TTL 24 h</text>
+<text x="546" y="757" class="body">On-demand · cifrado · PITR</text>
+<text x="546" y="780" class="body">Cada tarea refresca su caché cada 3 s</text>
+<text x="546" y="803" class="body">Las peticiones HTTP consultan la caché</text>
+<rect x="1080" y="680" width="480" height="145" rx="12" fill="white" stroke="#e18c27" stroke-width="2"/>
+<text x="1096" y="708" class="head">Amazon ECR</text>
+<text x="1096" y="734" class="body">Imágenes inmutables por SHA</text>
+<text x="1096" y="757" class="body">Build Linux/amd64 · scan Trivy</text>
+<text x="1096" y="780" class="body">Pull mediante execution role</text>
+<path d="M190 680V565" class="edge"/>
+<path d="M460 750H530" class="edge"/>
+<path d="M990 750H1035V460H1115" class="edge"/>
+<path d="M1320 680V575" class="edge"/>
+<text x="40" y="858" class="small">Servicios regionales fuera de la VPC: Cognito, API Gateway, CloudWatch, DynamoDB, Secrets Manager, ECR y S3.</text>
+<rect x="40" y="900" width="420" height="150" rx="12" fill="white" stroke="#6575c4" stroke-width="2"/>
+<text x="56" y="928" class="head">GitHub Actions · OIDC</text>
+<text x="56" y="954" class="body">Verify → build / scan → ECR</text>
+<text x="56" y="977" class="body">Terraform plan guardado → apply</text>
+<text x="56" y="1000" class="body">Smoke autenticado + rollback</text>
+<text x="56" y="1023" class="body">Lifecycle: deploy / destroy / reconstruir</text>
+<rect x="530" y="900" width="460" height="150" rx="12" fill="white" stroke="#6575c4" stroke-width="2"/>
+<text x="546" y="928" class="head">Control de infraestructura</text>
+<text x="546" y="954" class="body">S3: estados cifrados + versiones + locks</text>
+<text x="546" y="977" class="body">Foundation maintenance: bootstrap / IAM</text>
+<text x="546" y="1000" class="body">Roles separados + permissions boundaries</text>
+<text x="546" y="1023" class="body">Gates protegidos de production / foundation</text>
+<rect x="1080" y="900" width="480" height="150" rx="12" fill="white" stroke="#6575c4" stroke-width="2"/>
+<text x="1096" y="928" class="head">Base retenida al destruir el lab</text>
+<text x="1096" y="954" class="body">S3 + ECR + OIDC + roles + presupuesto</text>
+<text x="1096" y="977" class="body">Raíz de confianza inicial: SSO + Terraform</text>
+<text x="1096" y="1000" class="body">Destroy/recreate completo: aún sin ensayo</text>
+<text x="1096" y="1023" class="body">Presupuesto USD 80: alerta, no corte</text>
+<path d="M460 970H530" class="edge"/>
+<path d="M990 970H1080" class="edge"/>
+<path d="M250 900V875H1300V825" class="edge"/>
+<text x="40" y="1090" class="small">Capacidad real medida: 5.000 RPS / 60 s y 10.000 RPS / 30 s con 16 tareas temporales; 10k / 60 s tuvo descartes.</text>
+<text x="40" y="1120" class="small">Sin dominio custom/ACM, WAF, blue-green, tracing ni destino de notificaciones. Diagrama de implementación, no garantía de SLO.</text>
+</svg>

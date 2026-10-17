@@ -1,8 +1,8 @@
 # Checklist de entrega frente al challenge
 
-> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La ampliación de telemetría real está documentada en [telemetry.md](telemetry.md); no extrapolar el benchmark sin repetirlo.
+> Alcance de versión: los resultados de capacidad con fixtures pertenecen a la imagen anterior. La telemetría real y sus mediciones posteriores están documentadas en [telemetry.md](telemetry.md) y [telemetry-capacity-results.md](telemetry-capacity-results.md); los resultados históricos no se extrapolan.
 
-Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despliegue real. La implementación usa Go por elección explícita del candidato. Este checklist distingue implementación, evidencia y brechas; no equivale a certificar una operación enterprise.
+Actualizado el 17 de octubre de 2026 (UTC) tras contrastar el PDF original y el despliegue real. La implementación usa Go por elección explícita del candidato. Este checklist distingue implementación, evidencia y brechas; no equivale a certificar una operación enterprise.
 
 | Requisito del PDF | Estado | Archivo / evidencia | Forma de comprobar o pendiente |
 |---|---|---|---|
@@ -18,9 +18,9 @@ Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despli
 | Monitoreo básico | Configurado; smoke probado | Logs app/Gateway, Container Insights y alarmas en `iac/` | Eventos Gateway verificados y alarmas OK; faltan destino de notificación, tracing y pruebas de alertas |
 | Diagrama y decisiones | Entregado | `docs/architecture.md`, README | Mermaid del camino HTTP API → VPC Link → ALB privado → Fargate |
 | Build, tests y calidad/seguridad | Ejecutado en CI | `.github/workflows/deploy.yml` | Go fmt/race/cover/vet, Docker, Trivy y Terraform validate/mock tests |
-| Push a registry y despliegue automático | Ejecutado tras inicio y aprobación manuales | [Run exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/38857181854) | Verify → Publish → Plan → Apply → smoke; los pushes no despliegan automáticamente |
+| Push a registry y despliegue automático | Ejecutado desde push main con gate de entorno | [Run exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/39001245527) | Verify → Publish → plan/apply → smoke; LAB_AUTODEPLOY_ENABLED=true habilita autodeploy; lifecycle/foundation operan por Actions |
 | Estrategia de rollback | Ensayo operacional realizado; alcance limitado | Circuit breaker ECS, `cicd/rollback.sh`, `docs/runbook.md` | Retorno 3 → 5 → 3 con imagen idéntica, 272 muestras sin fallos; no prueba regresión ni circuit breaker |
-| IaC networking, compute, LB, IAM, observabilidad | Aplicada | `iac/`, `iac/bootstrap/`, `iac/identity/` | Estados separados S3 con bloqueo; conservar historial de planes y permisos corregidos |
+| IaC networking, compute, LB, IAM, observabilidad | Aplicada | `iac/`, `iac/bootstrap/`, `iac/identity/`, `iac/control/` | Estados separados S3 con bloqueo; foundation por Actions; raíz de confianza inicial externa. Destroy-plan ejecutado; ciclo destruir/recrear no ensayado |
 | Estructura /api, /iac, /cicd y README/run | Entregado | Directorios raíz, `README.md`, `run.md` | Instrucciones locales, despliegue y demo |
 | Uso de IA transparente | Entregado | `prompts.md` | Apoyo en implementación/documentación; validación contra pruebas y AWS real |
 
@@ -37,6 +37,6 @@ Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despli
 | Costos | Estimación y supuestos en `docs/costs.md`; presupuesto USD 80 sin corte automático. No confundir estimación con factura real |
 | Gobierno de cambios | Plan guardado y aprobación del entorno production; procedimiento de emergencia y reconciliación en runbook |
 
-La versión AWS actual expone datos reales de CloudWatch/ECS, persistidos en DynamoDB; el modo local mantiene fixtures. La cobertura funcional y el pico regional no sustituyen seguridad exhaustiva, soak, rollback de una regresión ni fallo de AZ. El pico de 10k RPS se demostró para un endpoint con fixtures y perfil preaprovisionado. Siguen pendientes resiliencia bajo ese pico, soak y operación enterprise.
+La versión AWS actual expone datos reales de CloudWatch/ECS, persistidos en DynamoDB; el modo local mantiene fixtures. La cobertura funcional y el pico regional no sustituyen seguridad exhaustiva, soak, rollback de una regresión ni fallo de AZ. El pico real de 10k RPS se demostró durante 30 s con 16 tareas preparadas; el intento real de 60 s tuvo descartes. El resultado anterior con fixtures está separado. Siguen pendientes resiliencia bajo ese pico, soak y operación enterprise.
 
 Resultados de cierre y límites: [validation-results.md](validation-results.md). Resumen técnico: [delivery-summary.md](delivery-summary.md).
