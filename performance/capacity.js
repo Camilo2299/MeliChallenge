@@ -36,12 +36,12 @@ export const options = {
 };
 export default function () {
   const steady = Date.now() - exec.scenario.startTime >= 10000;
-  const response = http.get(`${base}/v1/services`, {
+  const response = http.get(`${base}/v1/metrics`, {
     headers: { Authorization: `Bearer ${__ENV.ACCESS_TOKEN}` }, timeout: '5s',
   });
   let valid = false;
   if (response.status === 200) {
-    try { const data = response.json(); valid = Array.isArray(data) && data.length === 3; } catch (_) { /* Count invalid payload. */ }
+    try { const data = response.json(); valid = data.source === 'aws-cloudwatch-ecs' && data.service.id === 'infra-signal-lab' && Array.isArray(data.metrics) && data.metrics.length === 10; } catch (_) { /* Count invalid payload. */ }
   }
   invalid.add(!valid);
   if (steady) {
@@ -53,5 +53,5 @@ export default function () {
   successful.add(valid ? 1 : 0);
   throttled.add(response.status === 429 ? 1 : 0);
   serverErrors.add(response.status >= 500 ? 1 : 0);
-  check(response, { 'authenticated services content is valid': () => valid });
+  check(response, { 'authenticated real telemetry content is valid': () => valid });
 }

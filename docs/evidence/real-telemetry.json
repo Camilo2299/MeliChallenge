@@ -1,0 +1,623 @@
+{
+  "checked_at": "2026-10-17T02:21:36.004028+00:00",
+  "api_url": "https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com",
+  "checks": [
+    {
+      "path": "/v1/services",
+      "status": 200,
+      "request_id": "6B7NSNKORPIAJF2MQO4UYZ6BAH",
+      "authorization_propagation_retries": 1
+    },
+    {
+      "path": "/v1/services?environment=lab",
+      "status": 200,
+      "request_id": "SP7UJPNVPT6XTUF2W7S6DGXCX4",
+      "authorization_propagation_retries": 1
+    },
+    {
+      "path": "/v1/services/infra-signal-lab",
+      "status": 200,
+      "request_id": "6LTTF73524U2VVDUGMRY4UBGUL",
+      "authorization_propagation_retries": 0
+    },
+    {
+      "path": "/v1/deployments?service_id=infra-signal-lab",
+      "status": 200,
+      "request_id": "XKVUGBWITPKFMPPD34Z4HEF7OJ",
+      "authorization_propagation_retries": 0
+    },
+    {
+      "path": "/v1/summary",
+      "status": 200,
+      "request_id": "NNZV4YSD2RO4IY4GVN2ZSICJJA",
+      "authorization_propagation_retries": 0
+    },
+    {
+      "path": "/v1/metrics",
+      "status": 200,
+      "request_id": "4ZUGOXXJA6CNH5OKWMCXH5EPQ2",
+      "authorization_propagation_retries": 0
+    },
+    {
+      "path": "/v1/metrics/history",
+      "status": 200,
+      "request_id": "4MZBD6PNUBY7MMCTFQL4KGIE3X",
+      "authorization_propagation_retries": 0
+    },
+    {
+      "path": "/dashboard",
+      "status": 200,
+      "public_shell_only": true
+    },
+    {
+      "path": "/dashboard.js",
+      "status": 200,
+      "public_shell_only": true
+    },
+    {
+      "path": "/dashboard/config",
+      "status": 200,
+      "public_shell_only": true
+    }
+  ],
+  "cleanup": {
+    "original_audience_restored": true,
+    "temporary_client_deleted": true
+  },
+  "successive_collections": [
+    "2026-10-17T02:21:08.73229613Z",
+    "2026-10-17T02:22:08.732709133Z"
+  ],
+  "dynamodb": {
+    "table": "infra-signal-lab-telemetry",
+    "persisted_collected_at": "2026-10-17T02:22:08.732709133Z",
+    "signature_present": true
+  },
+  "snapshot": {
+    "source": "aws-cloudwatch-ecs",
+    "collected_at": "2026-10-17T02:22:08.732709133Z",
+    "service": {
+      "id": "infra-signal-lab",
+      "environment": "lab",
+      "status": "healthy",
+      "desired_tasks": 2,
+      "running_tasks": 2,
+      "pending_tasks": 0,
+      "task_definition": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:6",
+      "updated_at": "2026-10-17T02:22:08.732709133Z"
+    },
+    "deployments": [
+      {
+        "id": "ecs-svc/1059316605211620767",
+        "service_id": "infra-signal-lab",
+        "version": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:6",
+        "status": "PRIMARY",
+        "rollout_state": "COMPLETED",
+        "created_at": "2026-10-17T02:15:39.786Z",
+        "updated_at": "2026-10-17T02:18:12.308Z"
+      }
+    ],
+    "metrics": [
+      {
+        "id": "cpu",
+        "namespace": "AWS/ECS",
+        "name": "CPUUtilization",
+        "unit": "Percent",
+        "statistic": "Average",
+        "dimensions": {
+          "ClusterName": "infra-signal-lab",
+          "ServiceName": "infra-signal-lab"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:07:00Z",
+            "value": 0.17750787897966802
+          },
+          {
+            "at": "2026-10-17T02:08:00Z",
+            "value": 0.17407377324222276
+          },
+          {
+            "at": "2026-10-17T02:09:00Z",
+            "value": 0.32203922715658945
+          },
+          {
+            "at": "2026-10-17T02:10:00Z",
+            "value": 0.24187267012894154
+          },
+          {
+            "at": "2026-10-17T02:11:00Z",
+            "value": 0.4288951220611731
+          },
+          {
+            "at": "2026-10-17T02:12:00Z",
+            "value": 0.34686215835002565
+          },
+          {
+            "at": "2026-10-17T02:13:00Z",
+            "value": 0.16748445488822958
+          },
+          {
+            "at": "2026-10-17T02:14:00Z",
+            "value": 0.3448222057583431
+          },
+          {
+            "at": "2026-10-17T02:15:00Z",
+            "value": 0.34952288935892284
+          },
+          {
+            "at": "2026-10-17T02:16:00Z",
+            "value": 0.43563306044476724
+          },
+          {
+            "at": "2026-10-17T02:17:00Z",
+            "value": 0.2956261028981923
+          },
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 0.4385949485003948
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 0.44340533638993895
+          },
+          {
+            "at": "2026-10-17T02:20:00Z",
+            "value": 0.43748052294055617
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "memory",
+        "namespace": "AWS/ECS",
+        "name": "MemoryUtilization",
+        "unit": "Percent",
+        "statistic": "Average",
+        "dimensions": {
+          "ClusterName": "infra-signal-lab",
+          "ServiceName": "infra-signal-lab"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:07:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:08:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:09:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:10:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:11:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:12:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:13:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:14:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:15:00Z",
+            "value": 0.29296875
+          },
+          {
+            "at": "2026-10-17T02:16:00Z",
+            "value": 0.3485785590277778
+          },
+          {
+            "at": "2026-10-17T02:17:00Z",
+            "value": 0.54931640625
+          },
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 0.8463541666666667
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 0.87890625
+          },
+          {
+            "at": "2026-10-17T02:20:00Z",
+            "value": 0.87890625
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "alb_requests",
+        "namespace": "AWS/ApplicationELB",
+        "name": "RequestCount",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "LoadBalancer": "app/infra-signal-lab-alb/1f5529ed7d49bef5"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:07:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:08:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:09:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:10:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:11:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:12:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:13:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:14:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:15:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:16:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:17:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 1
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 5
+          },
+          {
+            "at": "2026-10-17T02:20:00Z",
+            "value": 0
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "alb_latency",
+        "namespace": "AWS/ApplicationELB",
+        "name": "TargetResponseTime",
+        "unit": "Seconds",
+        "statistic": "p95",
+        "dimensions": {
+          "LoadBalancer": "app/infra-signal-lab-alb/1f5529ed7d49bef5"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 0.00059
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 0.0007472399823563169
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "alb_5xx",
+        "namespace": "AWS/ApplicationELB",
+        "name": "HTTPCode_ELB_5XX_Count",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "LoadBalancer": "app/infra-signal-lab-alb/1f5529ed7d49bef5"
+        },
+        "period_seconds": 60,
+        "points": [],
+        "status": "no_data"
+      },
+      {
+        "id": "target_5xx",
+        "namespace": "AWS/ApplicationELB",
+        "name": "HTTPCode_Target_5XX_Count",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "LoadBalancer": "app/infra-signal-lab-alb/1f5529ed7d49bef5"
+        },
+        "period_seconds": 60,
+        "points": [],
+        "status": "no_data"
+      },
+      {
+        "id": "gateway_requests",
+        "namespace": "AWS/ApiGateway",
+        "name": "Count",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "ApiId": "v1dbllhj9a"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 1
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 8
+          },
+          {
+            "at": "2026-10-17T02:21:00Z",
+            "value": 1
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "gateway_latency",
+        "namespace": "AWS/ApiGateway",
+        "name": "Latency",
+        "unit": "Milliseconds",
+        "statistic": "p95",
+        "dimensions": {
+          "ApiId": "v1dbllhj9a"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 7
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 64.01883661941164
+          },
+          {
+            "at": "2026-10-17T02:21:00Z",
+            "value": 51
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "gateway_4xx",
+        "namespace": "AWS/ApiGateway",
+        "name": "4xx",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "ApiId": "v1dbllhj9a"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 3
+          },
+          {
+            "at": "2026-10-17T02:21:00Z",
+            "value": 1
+          }
+        ],
+        "status": "ok"
+      },
+      {
+        "id": "gateway_5xx",
+        "namespace": "AWS/ApiGateway",
+        "name": "5xx",
+        "unit": "Count",
+        "statistic": "Sum",
+        "dimensions": {
+          "ApiId": "v1dbllhj9a"
+        },
+        "period_seconds": 60,
+        "points": [
+          {
+            "at": "2026-10-17T02:18:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:19:00Z",
+            "value": 0
+          },
+          {
+            "at": "2026-10-17T02:21:00Z",
+            "value": 0
+          }
+        ],
+        "status": "ok"
+      }
+    ]
+  },
+  "secrets_manager": {
+    "name": "infra-signal-lab/snapshot-signing",
+    "injected_environment_name": "SNAPSHOT_SIGNING_KEY",
+    "value_logged": false
+  },
+  "bounded_load": {
+    "metrics": {
+      "data_sent": {
+        "count": 120137,
+        "rate": 1999.243716507484
+      },
+      "data_received": {
+        "count": 1054833,
+        "rate": 17553.861401689228
+      },
+      "http_req_connecting": {
+        "avg": 0.907049416990561,
+        "min": 0,
+        "med": 0,
+        "max": 104.036,
+        "p(90)": 0,
+        "p(95)": 0
+      },
+      "http_req_duration": {
+        "p(95)": 161.007,
+        "avg": 100.2695663520266,
+        "min": 79.256,
+        "med": 88.139,
+        "max": 325.33,
+        "p(90)": 135.535,
+        "thresholds": {
+          "p(95)<200": false
+        }
+      },
+      "http_req_blocked": {
+        "avg": 1.903366463076165,
+        "min": 0,
+        "med": 0.001,
+        "max": 204.021,
+        "p(90)": 0.002,
+        "p(95)": 0.002
+      },
+      "iterations": {
+        "count": 1801,
+        "rate": 29.971099107102546
+      },
+      "checks": {
+        "passes": 3602,
+        "fails": 0,
+        "thresholds": {
+          "rate==1": false
+        },
+        "value": 1
+      },
+      "http_req_sending": {
+        "avg": 0.20893114936146556,
+        "min": 0.016,
+        "med": 0.219,
+        "max": 6.915,
+        "p(90)": 0.29,
+        "p(95)": 0.335
+      },
+      "http_req_failed": {
+        "passes": 0,
+        "fails": 1801,
+        "thresholds": {
+          "rate<0.001": false
+        },
+        "value": 0
+      },
+      "http_reqs": {
+        "count": 1801,
+        "rate": 29.971099107102546
+      },
+      "http_req_waiting": {
+        "med": 87.802,
+        "max": 324.779,
+        "p(90)": 135.343,
+        "p(95)": 160.68,
+        "avg": 99.90501332593007,
+        "min": 72.663
+      },
+      "http_req_tls_handshaking": {
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0.9822448639644643,
+        "min": 0,
+        "med": 0,
+        "max": 113.419
+      },
+      "vus_max": {
+        "value": 20,
+        "min": 20,
+        "max": 20
+      },
+      "dropped_iterations": {
+        "count": 0,
+        "rate": 0,
+        "thresholds": {
+          "count==0": false
+        }
+      },
+      "http_req_receiving": {
+        "max": 13.625,
+        "p(90)": 0.214,
+        "p(95)": 0.319,
+        "avg": 0.15562187673514724,
+        "min": 0.007,
+        "med": 0.108
+      },
+      "iteration_duration": {
+        "p(95)": 167.693875,
+        "avg": 102.65845096946127,
+        "min": 79.352208,
+        "med": 88.554417,
+        "max": 393.341042,
+        "p(90)": 137.816541
+      },
+      "http_req_duration{expected_response:true}": {
+        "med": 88.139,
+        "max": 325.33,
+        "p(90)": 135.535,
+        "p(95)": 161.007,
+        "avg": 100.2695663520266,
+        "min": 79.256
+      },
+      "vus": {
+        "min": 2,
+        "max": 5,
+        "value": 2
+      }
+    },
+    "root_group": {
+      "path": "",
+      "id": "d41d8cd98f00b204e9800998ecf8427e",
+      "groups": {},
+      "checks": {
+        "HTTP 200": {
+          "passes": 1801,
+          "fails": 0,
+          "name": "HTTP 200",
+          "path": "::HTTP 200",
+          "id": "b70aee8a9f7a77d66dd70844a901558a"
+        },
+        "expected service inventory": {
+          "name": "expected service inventory",
+          "path": "::expected service inventory",
+          "id": "c11655d186de1cbdac47388d768b4c28",
+          "passes": 1801,
+          "fails": 0
+        }
+      },
+      "name": ""
+    }
+  },
+  "result": "PASS"
+}

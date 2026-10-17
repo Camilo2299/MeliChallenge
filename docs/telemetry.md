@@ -59,3 +59,13 @@ Las seis rutas de negocio requieren JWT y scope `infra-metrics/read`. Los assets
 No se añaden tareas ECS ni instancias RDS. La ampliación consume un secreto, almacenamiento/PITR y lecturas/escrituras DynamoDB, y diez métricas consultadas por minuto en CloudWatch. A dos tareas son unas 57.600 lecturas GetItem/día, más queries de histórico, y aproximadamente 1.440 recolecciones/día. El costo depende del tamaño de snapshot y de precios regionales, además de la infraestructura base que continúa encendida. No se debe interpretar el crédito o el presupuesto como un apagado automático.
 
 Los resultados anteriores de 10.000 RPS corresponden a la imagen con fixtures. No certifican automáticamente esta versión con persistencia y HMAC; requiere evidencia nueva. Las pruebas de Go cubren fuentes fallidas, firmas adulteradas, lease, frescura y rutas. La validación AWS se registra por separado una vez aplicada y consultada esta versión.
+
+## Evidencia AWS de la versión real
+
+Aplicación Terraform final: 11 recursos añadidos, tres actualizados y una sustitución de task definition (incluida en las altas/bajas). ECS quedó estable con dos tareas, sin pendientes, revisión `infra-signal-lab:6`, imagen `36d96bdbc65f57eaab94635b9bb0616c44e90519`. VPC y ALB existentes se conservaron. No se añadió cómputo permanente.
+
+[Reporte real](evidence/real-telemetry.json): siete consultas de negocio autenticadas y los tres assets/configuración pública del dashboard devolvieron 200. CPU y memoria contienen muestras reales; ALB sin muestras de errores conserva series vacías. Se observaron recolecciones distintas a las 02:21:08 y 02:22:08 UTC del 17 de octubre (21:21 y 21:22 del 16 de octubre en Bogotá). El registro LATEST de DynamoDB coincide con el origen real y tiene firma. Se comprobó la referencia del secreto en ECS y su metadata, sin leer ni registrar su valor. También se verificó que la clave no está en los campos del estado Terraform.
+
+Carga acotada de la imagen real: objetivo 30 RPS por 60 s, 1.801 respuestas válidas, 29,97 RPS observados contando cierre, p95 161,007 ms, cero errores y cero iteraciones descartadas. No se ha repetido el pico de 10.000 RPS para esta imagen. Las consultas de prueba usaron un cliente M2M temporal; su propagación de audiencia produjo reintentos previos a la medición, registrados en el reporte. Ese cliente fue eliminado y la audiencia humana original restaurada.
+
+La comprobación automatizada valida API, persistencia y assets; no sustituye una prueba manual del flujo visual de login en un navegador. El dashboard usa el mismo cliente Cognito con la nueva callback HTTPS permitida.

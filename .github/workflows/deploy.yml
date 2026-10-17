@@ -31,7 +31,7 @@ jobs:
           go vet ./...
       - name: Validate operational helpers
         run: |
-          python3 -m py_compile cicd/login_and_test.py cicd/create_demo_user.py cicd/resilience_drill.py
+          python3 -m py_compile cicd/login_and_test.py cicd/create_demo_user.py cicd/resilience_drill.py cicd/telemetry_smoke.py
           python3 -m unittest discover -s cicd/tests -v
           python3 -m py_compile performance/capacity.py performance/collect_metrics.py performance/regional_run.py
           python3 -m unittest discover -s performance/tests -v

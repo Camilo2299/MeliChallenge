@@ -6,15 +6,15 @@ Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despli
 
 | Requisito del PDF | Estado | Archivo / evidencia | Forma de comprobar o pendiente |
 |---|---|---|---|
-| API REST, al menos tres endpoints | Implementado y probado | `api/main.go`, `api/main_test.go`, `docs/evidence/authenticated-smoke.json` | Inventario, detalle, despliegues y resumen; cinco consultas autenticadas 200 |
+| API REST, al menos tres endpoints | Implementado y probado | `api/main.go`, `api/main_test.go`, `docs/evidence/authenticated-smoke.json` | Inventario, detalle, despliegues, resumen, métricas e histórico; siete consultas reales autenticadas 200 (evidence/real-telemetry.json) |
 | Errores consistentes y validación | Implementado; probado en tests | `api/main_test.go`, contrato OpenAPI | 404/405/422 y JSON uniforme del backend; Gateway tiene sus propios errores |
-| Health check | Probado en AWS | `cicd/smoke.sh`, pipeline exitoso | Readiness 200; liveness interna; fixtures sin dependencias externas |
+| Health check | Probado en AWS | `cicd/smoke.sh`, pipeline exitoso | Readiness AWS verifica snapshot reciente; liveness interna independiente de AWS |
 | Docker run / Compose | Implementado y validado en CI | `api/Dockerfile`, `docker-compose.yml`, `docs/local-validation.md` | Binario estático, scratch, no-root; runtime Fargate Linux/amd64 |
 | Sin credenciales hardcodeadas | Implementado | `.gitignore`, roles OIDC, `iac/identity/` | Acceso humano SSO y CI OIDC; IDs/ARN de cuenta no son secretos |
-| Exposición pública segura | Probado en AWS | `iac/gateway.tf`, reporte autenticado, smoke | HTTPS público, JWT y scope; sin token 401, con login cinco consultas 200 |
+| Exposición pública segura | Probado en AWS | `iac/gateway.tf`, reporte autenticado, smoke | HTTPS público, JWT y scope; sin token 401; datos reales autenticados 200 |
 | Alta disponibilidad y tolerancia a fallos | Topología y mecanismos configurados | `iac/main.tf`, `docs/architecture.md` | ALB/subredes en dos AZ, dos tareas, NAT por AZ, health checks y circuit breaker; reemplazo de una tarea probado en 58,88 s; falta pérdida de AZ |
 | Escalabilidad para 10k RPS | Pico regional validado; alcance limitado | `iac/main.tf`, `docs/loadtest.js`, `docs/costs.md` | Perfil temporal de 16 tareas: 10.000 RPS por 60 s, cero errores/descartes, p95 9,05 ms. Perfil habitual restaurado. Falta soak/fallo AZ bajo ese pico; ver capacity-results.md |
-| Manejo de secretos | Diseño aplicado sin secreto innecesario | Roles ECS, variable `secret_arn` | Demo sin secretos de aplicación; integración opcional con secreto existente, no ejercitada |
+| Manejo de secretos | Integrado y probado en AWS | Roles ECS, variable `secret_arn` | Clave HMAC en Secrets Manager inyectada por execution role; snapshots verificados; secreto write-only sin valor en estado |
 | Monitoreo básico | Configurado; smoke probado | Logs app/Gateway, Container Insights y alarmas en `iac/` | Eventos Gateway verificados y alarmas OK; faltan destino de notificación, tracing y pruebas de alertas |
 | Diagrama y decisiones | Entregado | `docs/architecture.md`, README | Mermaid del camino HTTP API → VPC Link → ALB privado → Fargate |
 | Build, tests y calidad/seguridad | Ejecutado en CI | `.github/workflows/deploy.yml` | Go fmt/race/cover/vet, Docker, Trivy y Terraform validate/mock tests |
@@ -37,6 +37,6 @@ Actualizado el 16 de octubre de 2026 tras contrastar el PDF original y el despli
 | Costos | Estimación y supuestos en `docs/costs.md`; presupuesto USD 80 sin corte automático. No confundir estimación con factura real |
 | Gobierno de cambios | Plan guardado y aprobación del entorno production; procedimiento de emergencia y reconciliación en runbook |
 
-Las métricas expuestas son fixtures. La cobertura funcional y el pico regional no sustituyen seguridad exhaustiva, soak, rollback de una regresión ni fallo de AZ. El pico de 10k RPS se demostró para un endpoint con fixtures y perfil preaprovisionado. Siguen pendientes resiliencia bajo ese pico, soak y operación enterprise.
+La versión AWS actual expone datos reales de CloudWatch/ECS, persistidos en DynamoDB; el modo local mantiene fixtures. La cobertura funcional y el pico regional no sustituyen seguridad exhaustiva, soak, rollback de una regresión ni fallo de AZ. El pico de 10k RPS se demostró para un endpoint con fixtures y perfil preaprovisionado. Siguen pendientes resiliencia bajo ese pico, soak y operación enterprise.
 
 Resultados de cierre y límites: [validation-results.md](validation-results.md). Resumen técnico: [delivery-summary.md](delivery-summary.md).

@@ -1,6 +1,6 @@
 # Challenge — DevOps & Platform Engineering
 
-**Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Implementación en validación; las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
+**Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Desplegada y validada en AWS a 30 RPS; las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
 
 **Implementación de referencia:** API REST de estado de infraestructura con Go (`net/http`), dockerización, pruebas unitarias, IaC para AWS ECS Fargate, CI/CD GitHub Actions y decisiones de producción explícitas.
 
@@ -71,7 +71,7 @@ Ver [`docs/architecture.md`](docs/architecture.md) para el diagrama y las limita
 
 ## 4. Despliegue y estado actual
 
-Bootstrap, identidad OIDC y plataforma fueron aplicados con Terraform. El [pipeline de despliegue exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/38857181854) incluye la verificación posterior. El [reporte autenticado](docs/evidence/authenticated-smoke.json) registra cinco respuestas HTTP 200. Ver también [`docs/bootstrap-evidence.md`](docs/bootstrap-evidence.md). Revisar [`cicd/bootstrap.md`](cicd/bootstrap.md) para el procedimiento reproducible y [`docs/costs.md`](docs/costs.md) para costos.
+Bootstrap, identidad OIDC y plataforma fueron aplicados con Terraform. El [pipeline de despliegue exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/38857181854) incluye la verificación posterior. La ampliación real se aplicó con Terraform usando SSO y conserva los roles OIDC del pipeline. El [reporte de telemetría real](docs/evidence/real-telemetry.json) registra siete consultas autenticadas 200, persistencia y dos recolecciones sucesivas. El reporte anterior de cinco consultas con fixtures se conserva como histórico. Ver también [`docs/bootstrap-evidence.md`](docs/bootstrap-evidence.md). Revisar [`cicd/bootstrap.md`](cicd/bootstrap.md) para el procedimiento reproducible y [`docs/costs.md`](docs/costs.md) para costos.
 
 GitHub Actions ejecuta pruebas Go, build Linux/amd64, escaneo de imagen, validación/pruebas Terraform y escaneo del repositorio en push/PR. El despliegue está temporalmente limitado a `workflow_dispatch` con `deploy=true` con publicación, plan y aplicación en roles separados. Ver [`docs/iam-oidc.md`](docs/iam-oidc.md) para configuración y límites. Requiere revisión del plan y un entorno `production` protegido con aprobación. Los roles y entornos ya están configurados para este repositorio. En un fork deben configurarse nuevamente; las políticas de `iac/identity` están acotadas a la cuenta y al laboratorio actuales.
 

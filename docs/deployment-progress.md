@@ -1,5 +1,7 @@
 # Historial del despliegue y validación
 
+**Actualización de telemetría real:** revisión ECS :6 desplegada mediante Terraform, DynamoDB y Secrets Manager activos; siete consultas reales autenticadas y 30 RPS/60 s comprobados. Ver [telemetry.md](telemetry.md) y [reporte](evidence/real-telemetry.json). El pico de 10k siguiente pertenece a la imagen anterior.
+
 **Estado final:** laboratorio desplegado, login humano probado y pico regional de 10.000 RPS durante 60 s completado. Generador temporal retirado y perfil habitual restaurado. Ver [reporte final](morning-report.md). Las secciones siguientes conservan el estado que tuvo cada hito, no representan todas el estado actual.
 
 Ejecución: https://github.com/Camilo2299/MeliChallenge/actions/runs/38846419254

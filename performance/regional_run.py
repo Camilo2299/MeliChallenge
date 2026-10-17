@@ -51,13 +51,16 @@ def main():
     folder.mkdir(mode=0o700, parents=True, exist_ok=False)
     report = {'started_at': datetime.now(timezone.utc).isoformat(), 'generator': 'EC2 c7g.2xlarge ARM64 Linux us-east-1a',
               'authentication': 'Temporary Cognito M2M client_credentials, infra-metrics/read scope',
+              'endpoint': '/v1/metrics', 'api_image': '36d96bdbc65f57eaab94635b9bb0616c44e90519',
               'stages': [], 'result': 'running'}
     try:
         for rate in rates:
             token = machine_token(config)
-            request = urllib.request.Request(config['api_url'] + '/v1/services', headers={'Authorization': 'Bearer ' + token})
+            request = urllib.request.Request(config['api_url'] + '/v1/metrics', headers={'Authorization': 'Bearer ' + token})
             with urllib.request.urlopen(request, timeout=10) as response:
-                assert response.status == 200 and len(json.load(response)) == 3
+                payload = json.load(response)
+                assert response.status == 200 and payload['source'] == 'aws-cloudwatch-ecs'
+                assert payload['service']['id'] == 'infra-signal-lab' and len(payload['metrics']) == 10
             env = os.environ.copy()
             env.update(ACCESS_TOKEN=token, BASE_URL=config['api_url'], RATE=str(rate), K6_NO_USAGE_REPORT='true')
             summary = folder / f'{rate}.json'

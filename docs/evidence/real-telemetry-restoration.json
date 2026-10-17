@@ -1,0 +1,12 @@
+{
+  "original_audience": [
+    "3rgsnh8b52lcqnlm00vnltlpdr"
+  ],
+  "temporary_probe_client_absent": true,
+  "desired_tasks": 2,
+  "running_tasks": 2,
+  "pending_tasks": 0,
+  "task_definition": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:6",
+  "terraform_post_plan": "No changes",
+  "signing_key_absent_from_state": true
+}
