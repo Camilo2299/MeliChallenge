@@ -73,3 +73,9 @@ resource "aws_secretsmanager_secret" "demo_login" {
   tags                    = local.tags
 }
 output "demo_login_secret_arn" { value = try(aws_secretsmanager_secret.demo_login[0].arn, null) }
+
+resource "aws_cloudwatch_log_group" "insights" {
+  name              = "/aws/ecs/containerinsights/${local.name}/performance"
+  retention_in_days = 1
+  tags              = local.tags
+}

@@ -455,10 +455,10 @@
           "logs:TagLogGroup"
         ],
         "Resource": [
-          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
-          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*",
           "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab",
-          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*"
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*"
         ],
         "Condition": {
           "StringEquals": {
@@ -488,10 +488,10 @@
           "logs:UntagResource"
         ],
         "Resource": [
-          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
-          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*",
           "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab",
-          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*"
+          "arn:aws:logs:us-east-1:026249143093:log-group:/apigateway/infra-signal-lab:*",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/ecs/infra-signal-lab:*"
         ],
         "Condition": {
           "StringEquals": {
@@ -993,6 +993,27 @@
         ],
         "Resource": [
           "arn:aws:secretsmanager:us-east-1:026249143093:secret:infra-signal-lab/demo-login-r*"
+        ]
+      }
+    ]
+  },
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:DeleteLogGroup",
+          "logs:ListTagsForResource",
+          "logs:PutRetentionPolicy",
+          "logs:TagLogGroup",
+          "logs:TagResource",
+          "logs:UntagResource"
+        ],
+        "Resource": [
+          "arn:aws:logs:us-east-1:026249143093:log-group:/aws/ecs/containerinsights/infra-signal-lab/performance",
+          "arn:aws:logs:us-east-1:026249143093:log-group:/aws/ecs/containerinsights/infra-signal-lab/performance:*"
         ]
       }
     ]

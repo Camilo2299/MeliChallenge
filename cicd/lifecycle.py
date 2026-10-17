@@ -108,6 +108,14 @@ def main():
             manifest['status'] = 'absent'
             save()
         return
+    # Adopt the AWS-created performance group once; thereafter Terraform owns its lifecycle.
+    if args.action == 'deploy' and 'aws_cloudwatch_log_group.insights' not in resources.splitlines():
+        group = '/aws/ecs/containerinsights/infra-signal-lab/performance'
+        groups = aws('logs', 'describe-log-groups', '--log-group-name-prefix', group).get('logGroups', [])
+        if any(item['logGroupName'] == group for item in groups):
+            tf('import', '-input=false', '-var=image_tag=' + manifest['image'],
+               '-var=deployment_generation=' + manifest['generation'],
+               'aws_cloudwatch_log_group.insights', group)
     previous = manifest['image']
     if args.action == 'rollback':
         image = manifest.get('previous_image')

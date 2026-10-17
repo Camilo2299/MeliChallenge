@@ -186,7 +186,8 @@ resource "aws_iam_role" "task" {
   permissions_boundary = var.permissions_boundary_arn
 }
 resource "aws_ecs_cluster" "main" {
-  name = local.name
+  depends_on = [aws_cloudwatch_log_group.insights]
+  name       = local.name
   setting {
     name  = "containerInsights"
     value = "enabled"
