@@ -1,6 +1,6 @@
 # Operación del laboratorio
 
-Antes de operar, confirmar perfil, cuenta, región y entorno; no usar root. La API muestra fixtures. Nunca imprimir JWT, passwords o secretos.
+Antes de operar, confirmar perfil, cuenta, región y entorno; no usar root. La API AWS usa datos reales; el modo local conserva fixtures. Nunca imprimir JWT, passwords o secretos.
 
 ## Diagnóstico
 
@@ -24,3 +24,9 @@ No se ha ejecutado destrucción. Para retirar el laboratorio con autorización:
 5. No vaciar ECR ni quitar protección/vaciar versiones S3 automáticamente. Su eliminación requiere un plan de retención y autorización adicionales. Confirmar ausencia de costos residuales y otras cargas de la cuenta.
 
 AWS Budgets no corta el gasto ni garantiza una alerta instantánea. Consultar docs/costs.md antes de mantener el entorno encendido durante días.
+
+## Telemetría y frescura
+
+Si readiness informa TELEMETRY_UNAVAILABLE o TELEMETRY_STALE, comprobar permisos y conectividad CloudWatch/ECS/DynamoDB, logs `telemetry collection`, la inyección SNAPSHOT_SIGNING_KEY y el registro LATEST. No imprimir el valor del secreto ni payloads de credenciales. No reemplazar datos ausentes con fixtures. El lease puede tardar hasta 55 s en liberarse tras una tarea detenida. Ver [flujo y rotación de clave](telemetry.md).
+
+La protección de borrado también aplica a DynamoDB. El retiro del secreto respeta una ventana de recuperación de siete días; revisar cualquier cambio de retención antes de destruir.

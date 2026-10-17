@@ -39,15 +39,21 @@ def main():
 
     def get(path):
         req = urllib.request.Request(base + path, headers={'Authorization': 'Bearer ' + token})
-        with urllib.request.urlopen(req, timeout=15) as res:
-            assert res.status == 200
-            return json.load(res), {'path': path, 'status': res.status, 'request_id': res.headers.get('X-Request-ID')}
+        for attempt in range(20):
+            try:
+                with urllib.request.urlopen(req, timeout=15) as res:
+                    assert res.status == 200
+                    return json.load(res), {'path': path, 'status': res.status, 'request_id': res.headers.get('X-Request-ID'), 'authorization_propagation_retries': attempt}
+            except urllib.error.HTTPError as err:
+                if err.code not in (401, 403) or attempt == 19:
+                    raise
+                time.sleep(3)
 
     try:
-        client = aws('cognito-idp', 'create-user-pool-client', '--user-pool-id', pool,
-                     '--client-name', 'temporary-real-telemetry-probe', '--generate-secret',
-                     '--allowed-oauth-flows-user-pool-client', '--allowed-oauth-flows', 'client_credentials',
-                     '--allowed-oauth-scopes', 'infra-metrics/read')['UserPoolClient']
+        client = aws('cognito-idp', 'create-user-pool-client', '--cli-input-json', json.dumps({
+            'UserPoolId': pool, 'ClientName': 'temporary-real-telemetry-probe', 'GenerateSecret': True,
+            'AllowedOAuthFlowsUserPoolClient': True, 'AllowedOAuthFlows': ['client_credentials'],
+            'AllowedOAuthScopes': ['infra-metrics/read']}))['UserPoolClient']
         client_id = client['ClientId']
         test_config = copy.deepcopy(original)
         test_config['Audience'].append(client_id)

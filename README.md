@@ -4,7 +4,7 @@
 
 **Implementación de referencia:** API REST de estado de infraestructura con Go (`net/http`), dockerización, pruebas unitarias, IaC para AWS ECS Fargate, CI/CD GitHub Actions y decisiones de producción explícitas.
 
-> **Transparencia:** la API funciona con datos *sample*, no consulta sistemas reales. Se validó un pico regional de **10.000 RPS durante 60 segundos** en GET /v1/services con fixtures y 16 tareas; [reporte y límites](docs/capacity-results.md). No acredita carga sostenida ni pérdida de AZ bajo ese pico. El laboratorio AWS fue desplegado mediante GitHub Actions y Terraform; se comprobaron readiness, rechazo sin token y cinco consultas autenticadas. Ver [evidencias](docs/deployment-progress.md).
+> **Datos:** en AWS, la API consulta snapshots reales de CloudWatch/ECS persistidos en DynamoDB; el modo local sin METRICS_TABLE conserva datos de ejemplo. Se validó un pico regional de **10.000 RPS durante 60 segundos** en GET /v1/services con fixtures y 16 tareas; [reporte y límites](docs/capacity-results.md). No acredita carga sostenida ni pérdida de AZ bajo ese pico. El laboratorio AWS fue desplegado mediante GitHub Actions y Terraform; se comprobaron readiness, rechazo sin token y cinco consultas autenticadas. Ver [evidencias](docs/deployment-progress.md).
 
 ## 1. Ejecutar localmente
 
@@ -49,10 +49,13 @@ Go permite compilar un binario estático y atender solicitudes concurrentes con 
 |---|---|---|
 | GET | `/health/live` | Proceso vivo (liveness) |
 | GET | `/health/ready` | Preparado para recibir tráfico (readiness) |
-| GET | `/v1/services?environment=production` | Inventario con filtro validado |
+| GET | `/v1/services?environment=lab` | Inventario con filtro validado |
 | GET | `/v1/services/{service_id}` | Consulta por ID, 404 uniforme |
-| GET | `/v1/deployments?service_id=gateway` | Eventos de despliegue ilustrativos |
-| GET | `/v1/summary` | Agregados y uptime del proceso |
+| GET | `/v1/deployments?service_id=infra-signal-lab` | Despliegues actuales de ECS |
+| GET | `/v1/summary` | Estado y frescura de la recolección |
+| GET | `/v1/metrics` | Métricas reales con timestamps y series de 15 minutos |
+| GET | `/v1/metrics/history` | Snapshots persistidos; últimos 30 |
+| GET | `/dashboard` | Vista autenticada con Cognito; refresco cada 3 s |
 
 Errores de negocio/validación: `{"error":{"code":"NOT_FOUND","message":"..."}}` o `{"error":{"code":"VALIDATION_ERROR","message":"...","details":[...]}}`. Identificador en respuesta `X-Request-ID`. En local se puede consultar sin token. En AWS las rutas de negocio requieren JWT de Cognito y scope `infra-metrics/read`; los errores del authorizer tienen formato de API Gateway.
 
@@ -64,7 +67,7 @@ Ver [`docs/architecture.md`](docs/architecture.md) para el diagrama y las limita
 - HTTPS público en el dominio AWS de API Gateway; `/health/ready` es pública. Las rutas de negocio requieren autenticación. No se publica Swagger en Gateway.
 - Dos NAT Gateway, health checks, circuit breaker y autoscaling. Configuración inicial de laboratorio: 2–4 tareas, throttling 100 RPS y burst 200; el pico se validó con un perfil temporal de 16 tareas y throttle 10k que se retiró tras la prueba.
 - ECR inmutable, estado S3 cifrado/versionado con lockfile, CloudWatch y roles ECS separados. Los roles GitHub OIDC están definidos en `iac/identity`; ya fueron creados mediante Terraform y su estado está en S3.
-- HTTP API no tiene WAF directo en este diseño. No se crean secretos sin necesidad.
+- DynamoDB almacena snapshots; Secrets Manager custodia la clave HMAC inyectada por ECS. HTTP API no tiene WAF directo en este diseño.
 
 ## 4. Despliegue y estado actual
 
@@ -89,7 +92,7 @@ Guion k6 de ejemplo: [`docs/loadtest.js`](docs/loadtest.js). El guion `performan
 ## 6. Costos / seguridad / producción
 
 - La factura se compone de Fargate vCPU/GB-hora × tareas, ALB horas/LCUs, 2 NAT GW horas/GB, CloudWatch logs/metrics, ECR storage/scan, transferencia. Presupuestar escenarios idle, nominal y pico con la calculadora oficial, no asignar una cifra sin región, throughput y tamaño real de payload.
-- Cognito, JWT con scope, logs y alarmas 5xx están implementados. El laboratorio no tiene tracing, adaptador de métricas reales ni destino de notificación para alarmas. No se usa API key como mecanismo de autenticación. Ver `docs/architecture.md`.
+- Cognito, JWT con scope, logs y alarmas 5xx están implementados. El laboratorio no tiene tracing ni destino de notificación para alarmas. No se usa API key como mecanismo de autenticación. Ver `docs/architecture.md`.
 - La automatización es demostrativa; añadir análisis de políticas, gates de SLO post-deploy, SBOM, signing y validaciones de drift antes de operar una plataforma enterprise.
 
 ## Documentación y evidencias

@@ -34,7 +34,13 @@ python3 cicd/login_and_test.py \
   --client-id 3rgsnh8b52lcqnlm00vnltlpdr
 ```
 
-Requiere Python 3, navegador y puerto local 8085 libre. El usuario ingresa su contraseña en Cognito; el script usa code + PKCE, conserva tokens en memoria y comprueba cinco consultas protegidas. El reporte /tmp/meli-authenticated-smoke.json no contiene tokens. No compartir contraseñas ni copiar JWT al README. Las credenciales no forman parte de la entrega; para acceso de evaluadores, acordar previamente un usuario administrativo de demostración.
+Requiere Python 3, navegador y puerto local 8085 libre. El usuario ingresa su contraseña en Cognito; el script usa code + PKCE, conserva tokens en memoria y comprueba siete consultas protegidas. El reporte /tmp/meli-authenticated-smoke.json no contiene tokens. No compartir contraseñas ni copiar JWT al README. Las credenciales no forman parte de la entrega; para acceso de evaluadores, acordar previamente un usuario administrativo de demostración.
+
+## Vista de métricas reales
+
+Abrir https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com/dashboard y elegir **Iniciar sesión**. La página usa Cognito y mantiene el access token solo en memoria. Se actualiza cada 3 s; las muestras de CloudWatch tienen periodo de 60 s y fecha propia. El servicio AWS es `infra-signal-lab` en entorno `lab`; `gateway` pertenece únicamente al modo local de ejemplo.
+
+Ver [telemetría](docs/telemetry.md) para rutas, persistencia, frescura y límites. El smoke automatizado `cicd/telemetry_smoke.py` modifica temporalmente la audiencia JWT para un cliente M2M de prueba y lo retira al terminar; requiere autorización para esas operaciones. No es necesario para el uso normal del dashboard.
 
 ## Reproducir el despliegue
 

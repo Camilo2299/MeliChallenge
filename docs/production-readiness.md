@@ -1,12 +1,12 @@
 # Alcance de la entrega y preparación para producción
 
-La entrega es un laboratorio AWS funcional del escenario. El PDF permite elegir dominio y tecnología; esta solución expone estado/eventos sintéticos mediante Go y REST. La automatización de infraestructura y la autenticación tienen evidencia real. Su aceptación final depende de la evaluación; este documento no certifica capacidad enterprise.
+La entrega es un laboratorio AWS funcional del escenario. El PDF permite elegir dominio y tecnología; la versión AWS actual expone métricas y estado reales de CloudWatch/ECS, persistidos en DynamoDB, mediante Go y REST. La automatización de infraestructura y la autenticación tienen evidencia real. Su aceptación final depende de la evaluación; este documento no certifica capacidad enterprise.
 
 ## Qué significa el objetivo de 10k RPS
 
 Consulta de cuotas de cierre: API Gateway en us-east-1 informa 10.000 RPS y burst 5.000 para la cuenta; Fargate On-Demand informa 30 vCPU. Ver `evidence/service-quotas.json`. Son cuotas, no throughput medido ni recursos reservados. La cuota regional de API Gateway es compartida; trabajar justo al límite no deja margen para otras APIs o variación del tráfico.
 
-El stage lab limita a 100 RPS/burst 200 y ECS tiene 2–4 tareas de 0,5 vCPU/1 GiB. Esa configuración habitual no acepta 10.000 RPS. El perfil temporal de 16 tareas sí completó el pico durante 60 s; ver capacity-results.md. Para sostener y ampliar esa validación:
+El stage lab limita a 100 RPS/burst 200 y ECS tiene 2–4 tareas de 0,5 vCPU/1 GiB. Esa configuración habitual no acepta 10.000 RPS. El perfil temporal de 16 tareas de la versión con fixtures sí completó el pico durante 60 s; ver capacity-results.md. Para sostener y ampliar esa validación:
 
 1. Acordar payload, rutas, autenticación, mezcla de requests y SLO; medir también frescura y fallos de la fuente si se conectan datos reales.
 2. Benchmark por tarea con la misma imagen/runtime de AWS y nivel de concurrencia; observar CPU, memoria, latencia y límites de conexiones. No extrapolar el resultado loopback de un Mac al trayecto Gateway/ALB/Fargate.

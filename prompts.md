@@ -18,3 +18,7 @@ La IA ayudó a preparar un generador k6 acotado y un helper de ensayo ECS. Se ej
 ## Prueba regional de pico
 
 Con autorización general de etapas de prueba y presupuesto total de USD 5, se preparó un generador Linux regional mediante Terraform y autenticación Cognito M2M temporal sin intervención humana. No se reutilizó ni cambió la contraseña del candidato. Se conservaron los intentos locales fallidos y se verificaron seis escalones regionales: pico de 10k RPS por un minuto, sin errores/descartes. Se descargaron reportes, se retiraron 14 recursos temporales y se comprobó el retorno a la configuración original. El resultado no se extrapola a datos reales, soak ni pérdida de AZ.
+
+## Ampliación a telemetría real
+
+Se solicitó sustituir fixtures en AWS por métricas de la misma infraestructura y persistencia. Se implementaron CloudWatch/ECS → snapshots firmados en DynamoDB → caché de lectura de 3 s, con dashboard Cognito PKCE y clave HMAC en Secrets Manager. Se verificaron firmas, fallos de fuente, coordinación, frescura y contrato mediante tests; las validaciones AWS y de carga se reportan por versión sin atribuir a esta ampliación el benchmark anterior de fixtures.
