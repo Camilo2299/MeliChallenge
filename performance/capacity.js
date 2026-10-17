@@ -4,6 +4,8 @@ import { Counter, Rate, Trend } from 'k6/metrics';
 import exec from 'k6/execution';
 
 const rate = Number(__ENV.RATE);
+const measurementSeconds = Number(__ENV.MEASUREMENT_SECONDS || 60);
+if (![30, 60].includes(measurementSeconds)) throw new Error('Measurement must be 30 or 60 seconds.');
 const allowed = [100, 500, 1000, 2500, 5000, 10000];
 const base = (__ENV.BASE_URL || '').replace(/\/$/, '');
 if (!allowed.includes(rate) || base !== 'https://v1dbllhj9a.execute-api.us-east-1.amazonaws.com' || !__ENV.ACCESS_TOKEN) {
@@ -21,9 +23,9 @@ export const options = {
   summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
   scenarios: { capacity: {
     executor: 'ramping-arrival-rate', startRate: 1, timeUnit: '1s',
-    stages: [{ target: rate, duration: '10s' }, { target: rate, duration: '60s' }],
-    preAllocatedVUs: Math.max(100, Math.ceil(rate * 0.12)),
-    maxVUs: Math.max(100, Math.ceil(rate * 0.2)), gracefulStop: '10s',
+    stages: [{ target: rate, duration: '10s' }, { target: rate, duration: `${measurementSeconds}s` }],
+    preAllocatedVUs: Math.max(100, Math.ceil(rate * 0.4)),
+    maxVUs: Math.max(100, Math.ceil(rate * 0.4)), gracefulStop: '10s',
   } },
   thresholds: {
     http_req_failed: [{ threshold: 'rate<0.001', abortOnFail: true, delayAbortEval: '20s' }],

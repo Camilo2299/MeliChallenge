@@ -44,13 +44,18 @@ def upload(config, folder):
 def main():
     config = json.loads((HOME / 'config.json').read_text())
     run_name = sys.argv[1] if len(sys.argv) > 1 else 'regional-1'
-    rates = [int(s) for s in sys.argv[2].split(',')] if len(sys.argv) > 2 else RATES
+    rates = [int(s) for s in sys.argv[2].split(',')] if len(sys.argv) > 2 else [100, 1000, 5000, 10000]
+    measurement_seconds = int(sys.argv[3]) if len(sys.argv) > 3 else 60
+    if measurement_seconds not in (30, 60):
+        raise SystemExit('Measurement must be 30 or 60 seconds.')
     if any(rate not in RATES for rate in rates) or '/' in run_name or run_name.startswith('.'):
         raise SystemExit('Invalid reviewed run parameters.')
     folder = HOME / 'results' / run_name
     folder.mkdir(mode=0o700, parents=True, exist_ok=False)
     report = {'started_at': datetime.now(timezone.utc).isoformat(), 'generator': 'EC2 c7g.2xlarge ARM64 Linux us-east-1a',
               'authentication': 'Temporary Cognito M2M client_credentials, infra-metrics/read scope',
+              'budget_controls': {'max_requests': 1050000, 'max_payload_bytes': 11000000000, 'estimated_additional_usd_limit': 2.5},
+              'measurement_seconds': measurement_seconds,
               'endpoint': '/v1/metrics', 'api_image': '36d96bdbc65f57eaab94635b9bb0616c44e90519',
               'stages': [], 'result': 'running'}
     try:
@@ -58,11 +63,18 @@ def main():
             token = machine_token(config)
             request = urllib.request.Request(config['api_url'] + '/v1/metrics', headers={'Authorization': 'Bearer ' + token})
             with urllib.request.urlopen(request, timeout=10) as response:
-                payload = json.load(response)
+                raw = response.read()
+                payload = json.loads(raw)
                 assert response.status == 200 and payload['source'] == 'aws-cloudwatch-ecs'
                 assert payload['service']['id'] == 'infra-signal-lab' and len(payload['metrics']) == 10
+            projected_requests = sum(stage.get('requests', 0) for stage in report['stages']) + rate * (5 + measurement_seconds)
+            projected_bytes = sum(stage.get('data_received_bytes', 0) for stage in report['stages']) + len(raw) * rate * (5 + measurement_seconds) * 1.1
+            if projected_requests > 1050000 or projected_bytes > 11000000000:
+                report['result'] = 'stopped_at_budget_guard'
+                print('Stopping before stage to preserve the campaign budget.', flush=True)
+                break
             env = os.environ.copy()
-            env.update(ACCESS_TOKEN=token, BASE_URL=config['api_url'], RATE=str(rate), K6_NO_USAGE_REPORT='true')
+            env.update(ACCESS_TOKEN=token, BASE_URL=config['api_url'], RATE=str(rate), MEASUREMENT_SECONDS=str(measurement_seconds), K6_NO_USAGE_REPORT='true')
             summary = folder / f'{rate}.json'
             before = resource.getrusage(resource.RUSAGE_CHILDREN)
             started = time.monotonic()
@@ -78,13 +90,15 @@ def main():
                      'generator_cpu_core_equivalents': round((after.ru_utime+after.ru_stime-before.ru_utime-before.ru_stime)/elapsed,3)}
             if summary.exists():
                 metrics = json.loads(summary.read_text())['metrics']
+                stage['data_received_bytes'] = metrics.get('data_received', {}).get('count', 0)
+                stage['preflight_payload_bytes'] = len(raw)
                 steady = metrics.get('steady_successful_requests',{}).get('count')
                 stage.update(requests=metrics['http_reqs']['count'], successful=metrics.get('successful_requests',{}).get('count',0),
                              overall_observed_rps=metrics['http_reqs']['rate'], error_rate=metrics['http_req_failed']['value'],
                              dropped_iterations=metrics.get('dropped_iterations',{}).get('count',0),
                              responses_429=metrics.get('responses_429',{}).get('count',0),
                              responses_5xx=metrics.get('responses_5xx',{}).get('count',0),
-                             steady_successful_requests=steady, steady_successful_rps=steady/60 if steady is not None and code==0 else None,
+                             steady_successful_requests=steady, steady_successful_rps=steady/measurement_seconds if steady is not None and code==0 else None,
                              steady_p95_ms=metrics.get('steady_duration',{}).get('p(95)'),
                              steady_p99_ms=metrics.get('steady_duration',{}).get('p(99)'))
             report['stages'].append(stage)

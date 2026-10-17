@@ -1,0 +1,198 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /opt/meli-capacity/capacity.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 4000 max VUs, 50s max duration (incl. graceful stop):
+              * capacity: Up to 10000.00 iterations/s for 40s over 2 stages (maxVUs: 4000, gracefulStop: 10s)
+
+
+running (00.7s), 0005/4000 VUs, 188 complete and 0 interrupted iterations
+capacity   [   2% ] 0005/4000 VUs  00.7s/40s  00622.06 iters/s
+
+running (01.7s), 0011/4000 VUs, 1304 complete and 0 interrupted iterations
+capacity   [   4% ] 0011/4000 VUs  01.7s/40s  01621.95 iters/s
+
+running (02.7s), 0023/4000 VUs, 3415 complete and 0 interrupted iterations
+capacity   [   7% ] 0023/4000 VUs  02.7s/40s  02622.28 iters/s
+
+running (03.7s), 0017/4000 VUs, 6542 complete and 0 interrupted iterations
+capacity   [   9% ] 0017/4000 VUs  03.7s/40s  03621.84 iters/s
+
+running (04.7s), 0021/4000 VUs, 10660 complete and 0 interrupted iterations
+capacity   [  12% ] 0021/4000 VUs  04.7s/40s  04621.80 iters/s
+
+running (05.7s), 0028/4000 VUs, 15775 complete and 0 interrupted iterations
+capacity   [  14% ] 0028/4000 VUs  05.7s/40s  05621.70 iters/s
+
+running (06.7s), 0030/4000 VUs, 21895 complete and 0 interrupted iterations
+capacity   [  17% ] 0030/4000 VUs  06.7s/40s  06621.68 iters/s
+
+running (07.7s), 0038/4000 VUs, 29009 complete and 0 interrupted iterations
+capacity   [  19% ] 0038/4000 VUs  07.7s/40s  07621.66 iters/s
+
+running (08.7s), 0044/4000 VUs, 37124 complete and 0 interrupted iterations
+capacity   [  22% ] 0044/4000 VUs  08.7s/40s  08621.43 iters/s
+
+running (09.7s), 0050/4000 VUs, 46239 complete and 0 interrupted iterations
+capacity   [  24% ] 0050/4000 VUs  09.7s/40s  09621.31 iters/s
+
+running (10.7s), 0054/4000 VUs, 56164 complete and 0 interrupted iterations
+capacity   [  27% ] 0054/4000 VUs  10.7s/40s  10000.00 iters/s
+
+running (11.7s), 0047/4000 VUs, 66170 complete and 0 interrupted iterations
+capacity   [  29% ] 0047/4000 VUs  11.7s/40s  10000.00 iters/s
+
+running (12.7s), 0076/4000 VUs, 76083 complete and 0 interrupted iterations
+capacity   [  32% ] 0076/4000 VUs  12.7s/40s  10000.00 iters/s
+
+running (13.7s), 0049/4000 VUs, 86081 complete and 0 interrupted iterations
+capacity   [  34% ] 0049/4000 VUs  13.7s/40s  10000.00 iters/s
+
+running (14.7s), 0059/4000 VUs, 96158 complete and 0 interrupted iterations
+capacity   [  37% ] 0059/4000 VUs  14.7s/40s  10000.00 iters/s
+
+running (15.7s), 0048/4000 VUs, 106169 complete and 0 interrupted iterations
+capacity   [  39% ] 0048/4000 VUs  15.7s/40s  10000.00 iters/s
+
+running (16.7s), 0046/4000 VUs, 116171 complete and 0 interrupted iterations
+capacity   [  42% ] 0046/4000 VUs  16.7s/40s  10000.00 iters/s
+
+running (17.7s), 0048/4000 VUs, 126170 complete and 0 interrupted iterations
+capacity   [  44% ] 0048/4000 VUs  17.7s/40s  10000.00 iters/s
+
+running (18.7s), 0044/4000 VUs, 136173 complete and 0 interrupted iterations
+capacity   [  47% ] 0044/4000 VUs  18.7s/40s  10000.00 iters/s
+
+running (19.7s), 0074/4000 VUs, 146144 complete and 0 interrupted iterations
+capacity   [  49% ] 0074/4000 VUs  19.7s/40s  10000.00 iters/s
+
+running (20.7s), 0046/4000 VUs, 156171 complete and 0 interrupted iterations
+capacity   [  52% ] 0046/4000 VUs  20.7s/40s  10000.00 iters/s
+
+running (21.7s), 0046/4000 VUs, 166171 complete and 0 interrupted iterations
+capacity   [  54% ] 0046/4000 VUs  21.7s/40s  10000.00 iters/s
+
+running (22.7s), 0049/4000 VUs, 176169 complete and 0 interrupted iterations
+capacity   [  57% ] 0049/4000 VUs  22.7s/40s  10000.00 iters/s
+
+running (23.9s), 0055/4000 VUs, 188309 complete and 0 interrupted iterations
+capacity   [  60% ] 0055/4000 VUs  23.9s/40s  10000.00 iters/s
+
+running (24.7s), 0062/4000 VUs, 196034 complete and 0 interrupted iterations
+capacity   [  62% ] 0062/4000 VUs  24.7s/40s  10000.00 iters/s
+
+running (25.7s), 0060/4000 VUs, 206057 complete and 0 interrupted iterations
+capacity   [  64% ] 0060/4000 VUs  25.7s/40s  10000.00 iters/s
+
+running (26.7s), 0046/4000 VUs, 216077 complete and 0 interrupted iterations
+capacity   [  67% ] 0046/4000 VUs  26.7s/40s  10000.00 iters/s
+
+running (27.7s), 0047/4000 VUs, 226171 complete and 0 interrupted iterations
+capacity   [  69% ] 0047/4000 VUs  27.7s/40s  10000.00 iters/s
+
+running (28.7s), 0050/4000 VUs, 236167 complete and 0 interrupted iterations
+capacity   [  72% ] 0050/4000 VUs  28.7s/40s  10000.00 iters/s
+
+running (29.7s), 0048/4000 VUs, 246169 complete and 0 interrupted iterations
+capacity   [  74% ] 0048/4000 VUs  29.7s/40s  10000.00 iters/s
+
+running (30.7s), 0049/4000 VUs, 256169 complete and 0 interrupted iterations
+capacity   [  77% ] 0049/4000 VUs  30.7s/40s  10000.00 iters/s
+
+running (31.7s), 0046/4000 VUs, 266171 complete and 0 interrupted iterations
+capacity   [  79% ] 0046/4000 VUs  31.7s/40s  10000.00 iters/s
+
+running (32.7s), 0047/4000 VUs, 276170 complete and 0 interrupted iterations
+capacity   [  82% ] 0047/4000 VUs  32.7s/40s  10000.00 iters/s
+
+running (33.7s), 0047/4000 VUs, 286170 complete and 0 interrupted iterations
+capacity   [  84% ] 0047/4000 VUs  33.7s/40s  10000.00 iters/s
+
+running (34.7s), 0063/4000 VUs, 296154 complete and 0 interrupted iterations
+capacity   [  87% ] 0063/4000 VUs  34.7s/40s  10000.00 iters/s
+
+running (35.7s), 0052/4000 VUs, 306165 complete and 0 interrupted iterations
+capacity   [  89% ] 0052/4000 VUs  35.7s/40s  10000.00 iters/s
+
+running (36.7s), 0047/4000 VUs, 316171 complete and 0 interrupted iterations
+capacity   [  92% ] 0047/4000 VUs  36.7s/40s  10000.00 iters/s
+
+running (37.7s), 0055/4000 VUs, 326151 complete and 0 interrupted iterations
+capacity   [  94% ] 0055/4000 VUs  37.7s/40s  10000.00 iters/s
+
+running (38.7s), 0051/4000 VUs, 336063 complete and 0 interrupted iterations
+capacity   [  97% ] 0051/4000 VUs  38.7s/40s  10000.00 iters/s
+
+running (39.7s), 0058/4000 VUs, 346036 complete and 0 interrupted iterations
+capacity   [  99% ] 0058/4000 VUs  39.7s/40s  10000.00 iters/s
+
+
+  █ THRESHOLDS 
+
+    dropped_iterations
+    ✓ 'count==0' count=0
+
+    http_req_duration
+    ✓ 'p(95)<200' p(95)=7.98ms
+
+    http_req_failed
+    ✓ 'rate<0.001' rate=0.00%
+
+    invalid_responses
+    ✓ 'rate<0.001' rate=0.00%
+
+    steady_duration
+    ✓ 'p(95)<200' p(95)=8.21ms
+
+    steady_invalid
+    ✓ 'rate<0.001' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 349558  8733.792183/s
+    checks_succeeded...: 100.00% 349558 out of 349558
+    checks_failed......: 0.00%   0 out of 349558
+
+    ✓ authenticated real telemetry content is valid
+
+    CUSTOM
+    invalid_responses..............: 0.00%  0 out of 349558
+    responses_429..................: 0      0/s
+    responses_5xx..................: 0      0/s
+    steady_duration................: avg=5.2ms  min=2.93ms med=4.75ms max=246.03ms p(90)=6.74ms p(95)=8.21ms p(99)=13.02ms
+    steady_invalid.................: 0.00%  0 out of 300056
+    steady_requests................: 300056 7496.972597/s
+    steady_successful_requests.....: 300056 7496.972597/s
+    successful_requests............: 349558 8733.792183/s
+
+    HTTP
+    http_req_duration..............: avg=5.14ms min=2.93ms med=4.72ms max=246.03ms p(90)=6.56ms p(95)=7.98ms p(99)=12.67ms
+      { expected_response:true }...: avg=5.14ms min=2.93ms med=4.72ms max=246.03ms p(90)=6.56ms p(95)=7.98ms p(99)=12.67ms
+    http_req_failed................: 0.00%  0 out of 349558
+    http_reqs......................: 349558 8733.792183/s
+
+    EXECUTION
+    dropped_iterations.............: 0      0/s
+    iteration_duration.............: avg=5.46ms min=3.13ms med=4.99ms max=246.26ms p(90)=7.07ms p(95)=8.56ms p(99)=13.47ms
+    iterations.....................: 349558 8733.792183/s
+    vus............................: 57     min=5           max=74  
+    vus_max........................: 4000   min=4000        max=4000
+
+    NETWORK
+    data_received..................: 2.3 GB 57 MB/s
+    data_sent......................: 40 MB  991 kB/s
+
+
+
+
+running (40.0s), 0000/4000 VUs, 349558 complete and 0 interrupted iterations
+capacity ✓ [ 100% ] 0000/4000 VUs  40s  10000.00 iters/s

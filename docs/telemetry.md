@@ -66,6 +66,10 @@ Aplicación Terraform final: 11 recursos añadidos, tres actualizados y una sust
 
 [Reporte real](evidence/real-telemetry.json): siete consultas de negocio autenticadas y los tres assets/configuración pública del dashboard devolvieron 200. CPU y memoria contienen muestras reales; ALB sin muestras de errores conserva series vacías. Se observaron recolecciones distintas a las 02:21:08 y 02:22:08 UTC del 17 de octubre (21:21 y 21:22 del 16 de octubre en Bogotá). El registro LATEST de DynamoDB coincide con el origen real y tiene firma. Se comprobó la referencia del secreto en ECS y su metadata, sin leer ni registrar su valor. También se verificó que la clave no está en los campos del estado Terraform.
 
-Carga acotada de la imagen real: objetivo 30 RPS por 60 s, 1.801 respuestas válidas, 29,97 RPS observados contando cierre, p95 161,007 ms, cero errores y cero iteraciones descartadas. No se ha repetido el pico de 10.000 RPS para esta imagen. Las consultas de prueba usaron un cliente M2M temporal; su propagación de audiencia produjo reintentos previos a la medición, registrados en el reporte. Ese cliente fue eliminado y la audiencia humana original restaurada.
+Carga acotada de la imagen real: objetivo 30 RPS por 60 s, 1.801 respuestas válidas, 29,97 RPS observados contando cierre, p95 161,007 ms, cero errores y cero iteraciones descartadas. La repetición del pico para esta imagen se registra por separado en el plan telemetry-capacity-plan.md y en sus evidencias, sin sustituir el resultado acotado anterior. Las consultas de prueba usaron un cliente M2M temporal; su propagación de audiencia produjo reintentos previos a la medición, registrados en el reporte. Ese cliente fue eliminado y la audiencia humana original restaurada.
 
 La comprobación automatizada valida API, persistencia y assets; no sustituye una prueba manual del flujo visual de login en un navegador. El dashboard usa el mismo cliente Cognito con la nueva callback HTTPS permitida.
+
+## Capacidad de esta imagen
+
+Se completaron 5.000 RPS/60 s y una repetición de 10.000 RPS/30 s contra /v1/metrics. El primer intento de 10k/60 s falló por descartes y no se aprueba. Ver [resultados completos y límites](telemetry-capacity-results.md). No se extrapola el ensayo corto a un minuto ni a carga sostenida.

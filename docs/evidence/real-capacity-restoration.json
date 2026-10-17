@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-17T02:45:06.339883+00:00",
+  "resources_destroyed": 14,
+  "generator_instance_id": "i-05c3eb7f6d1d5eca5",
+  "generator_state": "terminated",
+  "temporary_clients_absent": true,
+  "original_audience": [
+    "3rgsnh8b52lcqnlm00vnltlpdr"
+  ],
+  "desired_tasks": 2,
+  "running_tasks": 2,
+  "pending_tasks": 0,
+  "task_definition": "arn:aws:ecs:us-east-1:026249143093:task-definition/infra-signal-lab:6",
+  "telemetry_table_retained": "infra-signal-lab-telemetry",
+  "signing_secret_retained": true,
+  "terraform_post_restore": "No changes"
+}

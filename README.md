@@ -1,10 +1,10 @@
 # Challenge — DevOps & Platform Engineering
 
-**Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Desplegada y validada en AWS a 30 RPS; las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
+**Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Desplegada y validada funcionalmente; [capacidad real](docs/telemetry-capacity-results.md): 5k RPS/60 s y 10k RPS/30 s (el intento de 60 s falló por descartes). Las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
 
 **Implementación de referencia:** API REST de estado de infraestructura con Go (`net/http`), dockerización, pruebas unitarias, IaC para AWS ECS Fargate, CI/CD GitHub Actions y decisiones de producción explícitas.
 
-> **Datos:** en AWS, la API consulta snapshots reales de CloudWatch/ECS persistidos en DynamoDB; el modo local sin METRICS_TABLE conserva datos de ejemplo. Se validó un pico regional de **10.000 RPS durante 60 segundos** en GET /v1/services con fixtures y 16 tareas; [reporte y límites](docs/capacity-results.md). No acredita carga sostenida ni pérdida de AZ bajo ese pico. El laboratorio AWS fue desplegado mediante GitHub Actions y Terraform; se comprobaron readiness, rechazo sin token y cinco consultas autenticadas. Ver [evidencias](docs/deployment-progress.md).
+> **Datos y evidencia:** AWS usa CloudWatch/ECS → DynamoDB → caché de 3 s; el modo local conserva fixtures. Se validaron 5.000 RPS/60 s y 10.000 RPS/30 s contra las métricas reales. El intento real de 60 s falló por descartes: [resultados y límites](docs/telemetry-capacity-results.md). El benchmark anterior de fixtures se conserva por separado y no certifica esta versión.
 
 ## 1. Ejecutar localmente
 

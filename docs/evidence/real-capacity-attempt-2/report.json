@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-10-17T02:40:25.690943+00:00",
+  "generator": "EC2 c7g.2xlarge ARM64 Linux us-east-1a",
+  "authentication": "Temporary Cognito M2M client_credentials, infra-metrics/read scope",
+  "budget_controls": {
+    "max_requests": 1050000,
+    "max_payload_bytes": 11000000000,
+    "estimated_additional_usd_limit": 2.5
+  },
+  "measurement_seconds": 30,
+  "endpoint": "/v1/metrics",
+  "api_image": "36d96bdbc65f57eaab94635b9bb0616c44e90519",
+  "stages": [
+    {
+      "target_rps": 10000,
+      "exit_code": 0,
+      "elapsed_seconds": 40.715,
+      "generator_max_rss_bytes": 2390425600,
+      "generator_cpu_core_equivalents": 4.537,
+      "data_received_bytes": 2269768682,
+      "preflight_payload_bytes": 6150,
+      "requests": 349558,
+      "successful": 349558,
+      "overall_observed_rps": 8733.792182824096,
+      "error_rate": 0,
+      "dropped_iterations": 0,
+      "responses_429": 0,
+      "responses_5xx": 0,
+      "steady_successful_requests": 300056,
+      "steady_successful_rps": 10001.866666666667,
+      "steady_p95_ms": 8.215141749999997,
+      "steady_p99_ms": 13.028401549999998
+    }
+  ],
+  "result": "all_stages_passed",
+  "finished_at": "2026-10-17T02:41:08.829397+00:00"
+}
