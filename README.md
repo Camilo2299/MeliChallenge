@@ -1,5 +1,7 @@
 # Challenge — DevOps & Platform Engineering
 
+> **Laboratorio retirado el 23 de octubre de 2026 (Bogotá).** La API y el dashboard documentados ya no están disponibles. [Destroy completado por Actions](https://github.com/Camilo2299/MeliChallenge/actions/runs/40053480336): estado de aplicación vacío. Se retienen S3/ECR/OIDC/roles/presupuesto para reconstrucción; pueden generar cargos residuales. Las evidencias siguientes corresponden al despliegue anterior. Reconstrucción mediante Lab lifecycle → deploy; ciclo completo destruir/recrear aún no ensayado.
+
 **Ampliación de telemetría real:** [flujo CloudWatch/ECS → DynamoDB → API/dashboard](docs/telemetry.md). Desplegada y validada funcionalmente; [capacidad real](docs/telemetry-capacity-results.md): 5k RPS/60 s y 10k RPS/30 s (el intento de 60 s falló por descartes). Las evidencias de 10.000 RPS siguientes corresponden a la versión anterior con fixtures.
 
 **Implementación de referencia:** API REST de estado de infraestructura con Go (`net/http`), dockerización, pruebas unitarias, IaC para AWS ECS Fargate, CI/CD GitHub Actions y decisiones de producción explícitas.

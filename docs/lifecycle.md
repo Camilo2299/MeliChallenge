@@ -1,5 +1,7 @@
 # Ciclo del laboratorio por GitHub Actions
 
+**Cierre del 23 de octubre de 2026 (Bogotá):** [destroy exitoso](https://github.com/Camilo2299/MeliChallenge/actions/runs/40053480336), estado de aplicación vacío y manifiesto ausente. El intento anterior retiró la plataforma pero falló al disociar las dos IP de NAT; [foundation](https://github.com/Camilo2299/MeliChallenge/actions/runs/40053255793) corrigió el permiso y el reintento liberó ambas. No se ejecutó reconstrucción. Las referencias posteriores a destrucción no ensayada describen el estado previo a este cierre; sigue pendiente validar el ciclo completo con reconstrucción.
+
 El workflow **Lab lifecycle** centraliza la plataforma `infra-signal-lab`, región `us-east-1`, cuenta `026249143093`. Ejecución únicamente desde `main`, mediante OIDC y el environment protegido `production`. No usa access keys de larga duración. Los workflows que escriben el estado comparten `infra-signal-deployment` y no se cancelan entre sí.
 
 | Operación | Resultado |
