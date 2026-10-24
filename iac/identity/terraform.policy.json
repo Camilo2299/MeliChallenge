@@ -1015,6 +1015,21 @@
           "arn:aws:logs:us-east-1:026249143093:log-group:/aws/ecs/containerinsights/infra-signal-lab/performance",
           "arn:aws:logs:us-east-1:026249143093:log-group:/aws/ecs/containerinsights/infra-signal-lab/performance:*"
         ]
+      },
+      {
+        "Sid": "DisassociateNatAddressesDuringTeardown",
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DisassociateAddress"
+        ],
+        "Resource": [
+          "arn:aws:ec2:us-east-1:026249143093:*/*"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "aws:RequestedRegion": "us-east-1"
+          }
+        }
       }
     ]
   }
