@@ -19,6 +19,8 @@ concurrency:
 jobs:
   verify:
     uses: ./.github/workflows/verify.yml
+    with:
+      infrastructure_only: ${{ inputs.operation != 'deploy' && inputs.operation != 'rollback' }}
   publish:
     needs: verify
     if: github.ref == 'refs/heads/main' && inputs.operation == 'deploy'
